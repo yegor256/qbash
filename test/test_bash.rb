@@ -48,4 +48,8 @@ class TestJudge < Minitest::Test
       assert_equal('hello', File.read(f))
     end
   end
+
+  def test_with_special_symbols
+    assert_equal("'hi'\n", Bash.exec("echo \"'hi'\""))
+  end
 end

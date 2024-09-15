@@ -36,6 +36,8 @@ module Bash
   #
   # If exit code is not zero, an exception will be raised.
   #
+  # To escape arguments, use +Shellwords.escape()+ method.
+  #
   # @param [String] cmd The command to run
   # @param [String] stdin Input string
   # @param [Hash] env Environment variables
@@ -44,7 +46,7 @@ module Bash
   def self.exec(cmd, stdin: '', env: {}, loog: Loog::NULL)
     loog.debug("+ #{cmd}")
     buf = ''
-    Open3.popen2e(env, "/bin/bash -c '#{cmd}'") do |sin, sout, thr|
+    Open3.popen2e(env, "/bin/bash -c #{Shellwords.escape(cmd)}") do |sin, sout, thr|
       sin.write(stdin)
       sin.close
       until sout.eof?
