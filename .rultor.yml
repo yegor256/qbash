@@ -33,8 +33,6 @@ release:
     rm -rf *.gem
     sed -i "s/0\.0\.0/${tag}/g" bash.gemspec
     git add bash.gemspec
-    sed -i "s/0\.0\.0/${tag}/g" lib/bash.rb
-    git add lib/bash.rb
     git commit -m "version set to ${tag}"
     gem build bash.gemspec
     chmod 0600 ../rubygems.yml

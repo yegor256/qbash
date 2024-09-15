@@ -30,8 +30,6 @@ require 'backtrace'
 # Copyright:: Copyright (c) 2024 Yegor Bugayenko
 # License:: MIT
 module Kernel
-  VERSION = '0.0.0'
-
   # Execute a single bash command.
   #
   # If exit code is not zero, an exception will be raised.
