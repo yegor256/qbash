@@ -29,7 +29,7 @@ require 'backtrace'
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
 # Copyright:: Copyright (c) 2024 Yegor Bugayenko
 # License:: MIT
-module Bash
+module Kernel
   VERSION = '0.0.0'
 
   # Execute a single bash command.
@@ -43,7 +43,7 @@ module Bash
   # @param [Hash] env Environment variables
   # @param [Loog] loog Logging facility with +.debug()+ method
   # @return [String] Stdout
-  def self.exec(cmd, stdin: '', env: {}, loog: Loog::NULL)
+  def bash(cmd, stdin: '', env: {}, loog: Loog::NULL)
     loog.debug("+ #{cmd}")
     buf = ''
     Open3.popen2e(env, "/bin/bash -c #{Shellwords.escape(cmd)}") do |sin, sout, thr|
