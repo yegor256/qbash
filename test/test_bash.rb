@@ -23,6 +23,7 @@
 require 'minitest/autorun'
 require 'tmpdir'
 require 'loog'
+require 'shellwords'
 require_relative 'test__helper'
 require_relative '../lib/bash'
 
@@ -41,8 +42,8 @@ class TestJudge < Minitest::Test
 
   def test_with_stdin
     Dir.mktmpdir do |home|
-      f = File.join(home, 'a.txt')
-      Bash.exec("cat > #{f}", stdin: 'hello')
+      f = File.join(home, 'a b c.txt')
+      Bash.exec("cat > #{Shellwords.escape(f)}", stdin: 'hello')
       assert(File.exist?(f))
       assert_equal('hello', File.read(f))
     end
