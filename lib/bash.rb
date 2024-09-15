@@ -32,6 +32,15 @@ require 'backtrace'
 module Bash
   VERSION = '0.0.0'
 
+  # Execute a single bash command.
+  #
+  # If exit code is not zero, an exception will be raised.
+  #
+  # @param [String] cmd The command to run
+  # @param [String] stdin Input string
+  # @param [Hash] env Environment variables
+  # @param [Loog] loog Logging facility with +.debug()+ method
+  # @return [String] Stdout
   def self.exec(cmd, stdin: '', env: {}, loog: Loog::NULL)
     loog.debug("+ #{cmd}")
     buf = ''
