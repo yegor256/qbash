@@ -35,11 +35,12 @@ module Bash
   def self.exec(cmd, stdin: '', env: {}, loog: Loog::NULL)
     loog.debug("+ #{cmd}")
     buf = ''
-    Open3.popen2e(env, "/bin/bash -c '#{cmd}'") do |stdin, stdout, thr|
-      stdin.close
-      until stdout.eof?
+    Open3.popen2e(env, "/bin/bash -c '#{cmd}'") do |sin, sout, thr|
+      sin.puts(stdin)
+      sin.close
+      until sout.eof?
         begin
-          ln = stdout.gets
+          ln = sout.gets
         rescue IOError => e
           ln = Backtrace.new(e).to_s
         end

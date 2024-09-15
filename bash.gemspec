@@ -40,7 +40,7 @@ Gem::Specification.new do |s|
   s.rdoc_options = ['--charset=UTF-8']
   s.extra_rdoc_files = ['README.md', 'LICENSE.txt']
   s.add_dependency 'backtrace', '>0'
-  s.add_dependency 'loog', '>0'
   s.add_dependency 'elapsed', '>0'
+  s.add_dependency 'loog', '>0'
   s.metadata['rubygems_mfa_required'] = 'true'
 end
