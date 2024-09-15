@@ -33,9 +33,18 @@ require_relative '../lib/bash'
 class TestJudge < Minitest::Test
   def test_basic_run
     Dir.mktmpdir do |home|
-      Bash.exec("cd #{home}; echo $FOO | cat > a.txt", stdin: 'hello', env: { 'FOO' => '42' })
+      Bash.exec("cd #{home}; echo $FOO | cat > a.txt", env: { 'FOO' => '42' })
       assert(File.exist?(File.join(home, 'a.txt')))
       assert_equal("42\n", File.read(File.join(home, 'a.txt')))
+    end
+  end
+
+  def test_with_stdin
+    Dir.mktmpdir do |home|
+      f = File.join(home, 'a.txt')
+      Bash.exec("cat > #{f}", stdin: 'hello')
+      assert(File.exist?(f))
+      assert_equal('hello', File.read(f))
     end
   end
 end

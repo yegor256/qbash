@@ -36,7 +36,7 @@ module Bash
     loog.debug("+ #{cmd}")
     buf = ''
     Open3.popen2e(env, "/bin/bash -c '#{cmd}'") do |sin, sout, thr|
-      sin.puts(stdin)
+      sin.write(stdin)
       sin.close
       until sout.eof?
         begin
