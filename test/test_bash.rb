@@ -34,7 +34,7 @@ require_relative '../lib/bash'
 class TestJudge < Minitest::Test
   def test_basic_run
     Dir.mktmpdir do |home|
-      bash("cd #{home}; echo $FOO | cat > a.txt", env: { 'FOO' => '42' })
+      bash("cd #{Shellwords.escape(home)}; echo $FOO | cat > a.txt", env: { 'FOO' => '42' })
       assert(File.exist?(File.join(home, 'a.txt')))
       assert_equal("42\n", File.read(File.join(home, 'a.txt')))
     end
@@ -51,5 +51,11 @@ class TestJudge < Minitest::Test
 
   def test_with_special_symbols
     assert_equal("'hi'\n", bash("echo \"'hi'\""))
+  end
+
+  def test_with_error
+    Dir.mktmpdir do |home|
+      assert_raises { bash("cat #{Shellwords.escape(File.join(home, 'b.txt'))}") }
+    end
   end
 end
