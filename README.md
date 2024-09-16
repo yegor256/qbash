@@ -49,6 +49,9 @@ acceptable (there will be no failures ever).
 The command may be provided as an array, which automatically will be
 converted to a string by joining all items with spaces between them.
 
+It is very much recommended to escape all command-line values with the help
+of [Shellwords.escape][shellwords].
+
 ## How to contribute
 
 Read
@@ -64,3 +67,5 @@ bundle exec rake
 ```
 
 If it's clean and you don't see any error messages, submit your pull request.
+
+[shellwords]: https://ruby-doc.org/stdlib-3.0.1/libdoc/shellwords/rdoc/Shellwords.html
