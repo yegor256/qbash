@@ -35,6 +35,17 @@ stdout = qbash('cat > $FILE', env: { 'FILE' => 'a.txt' }, stdin: 'Hello!')
 It's possible to configure the logging facility too, with the help
 of the [loog](https://github.com/yegor256/loog) gem.
 
+You can also make it return both stdout and exit code, with the help
+of the `both` option set to `true`:
+
+```ruby
+stdout, code = qbash('cat a.txt', both: true, accept: [])
+```
+
+Here, the `accept` param contains the list of exit codes that are "acceptable"
+and won't lead to runtime failures. When the list is empty, all exists are
+acceptable (there will be no failures ever).
+
 ## How to contribute
 
 Read
