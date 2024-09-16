@@ -21,10 +21,19 @@ Simply execute a bash command from Ruby:
 
 ```ruby
 require 'bash'
-stdout = Bash.exec('echo "Hello, world!"')
+stdout = bash('echo "Hello, world!"')
 ```
 
 If the command fails, an exception will be raised.
+
+It's possible to provide the standard input and environment variables:
+
+```ruby
+stdout = bash('cat > $FILE', env: { 'FILE' => 'a.txt' }, stdin: 'Hello!')
+```
+
+It's possible to configure the logging facility too, with the help
+of the [loog](https://github.com/yegor256/loog) gem.
 
 ## How to contribute
 
