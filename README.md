@@ -46,6 +46,9 @@ Here, the `accept` param contains the list of exit codes that are "acceptable"
 and won't lead to runtime failures. When the list is empty, all exists are
 acceptable (there will be no failures ever).
 
+The command may be provided as an array, which automatically will be
+converted to a string by joining all items with spaces between them.
+
 ## How to contribute
 
 Read
