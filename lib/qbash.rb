@@ -41,10 +41,12 @@ module Kernel
   # @param [Hash] env Environment variables
   # @param [Loog] loog Logging facility with +.debug()+ method
   # @param [Array] accepted List of accepted exit codes (accept all if empty)
+  # @param [Boolean] both If set to TRUE, the function returns an array +(stdout, code)+
   # @return [String] Stdout
-  def qbash(cmd, stdin: '', env: {}, loog: Loog::NULL, accept: [0])
+  def qbash(cmd, stdin: '', env: {}, loog: Loog::NULL, accept: [0], both: false)
     loog.debug("+ #{cmd}")
     buf = ''
+    e = 1
     cmd = cmd.join(' ') if cmd.is_a?(Array)
     Open3.popen2e(env, "/bin/bash -c #{Shellwords.escape(cmd)}") do |sin, sout, thr|
       sin.write(stdin)
@@ -61,6 +63,7 @@ module Kernel
       e = thr.value.to_i
       raise "The command '#{cmd}' failed with exit code ##{e}\n#{buf}" if !accept.empty? && !accept.include?(e)
     end
+    return [buf, e] if both
     buf
   end
 end

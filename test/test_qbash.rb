@@ -68,4 +68,12 @@ class TestQbash < Minitest::Test
       qbash("cat #{Shellwords.escape(File.join(home, 'b.txt'))}", accept: [])
     end
   end
+
+  def test_with_both
+    Dir.mktmpdir do |home|
+      stdout, code = qbash("cat #{Shellwords.escape(File.join(home, 'foo.txt'))}", accept: [], both: true)
+      assert(code.positive?)
+      assert(!stdout.empty?)
+    end
+  end
 end
