@@ -1,4 +1,4 @@
-# Executor of Bash Commands from Ruby
+# Quick and Simple Executor of Bash Commands
 
 [![DevOps By Rultor.com](http://www.rultor.com/b/yegor256/bash)](http://www.rultor.com/p/yegor256/bash)
 [![We recommend RubyMine](https://www.elegantobjects.org/rubymine.svg)](https://www.jetbrains.com/ruby/)
@@ -14,14 +14,14 @@
 First, install it:
 
 ```bash
-gem install bash
+gem install qbash
 ```
 
 Simply execute a bash command from Ruby:
 
 ```ruby
-require 'bash'
-stdout = bash('echo "Hello, world!"')
+require 'qbash'
+stdout = qbash('echo "Hello, world!"')
 ```
 
 If the command fails, an exception will be raised.
@@ -29,7 +29,7 @@ If the command fails, an exception will be raised.
 It's possible to provide the standard input and environment variables:
 
 ```ruby
-stdout = bash('cat > $FILE', env: { 'FILE' => 'a.txt' }, stdin: 'Hello!')
+stdout = qbash('cat > $FILE', env: { 'FILE' => 'a.txt' }, stdin: 'Hello!')
 ```
 
 It's possible to configure the logging facility too, with the help

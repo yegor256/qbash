@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    bash (0.0.0)
+    qbash (0.0.0)
       backtrace (> 0)
       elapsed (> 0)
       loog (> 0)
@@ -91,7 +91,7 @@ GEM
     ffi (1.17.0-x86_64-darwin)
     ffi (1.17.0-x86_64-linux-gnu)
     hashdiff (1.1.1)
-    i18n (1.14.5)
+    i18n (1.14.6)
       concurrent-ruby (~> 1.0)
     io-console (0.7.2)
     irb (1.14.0)
@@ -243,11 +243,11 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  bash!
   cucumber (= 9.2.0)
   minitest (= 5.25.1)
   minitest-reporters (= 1.7.1)
   net-ping (= 2.0.8)
+  qbash!
   rake (= 13.2.1)
   random-port (~> 0.0)
   rspec-rails (= 7.0.1)

@@ -20,46 +20,52 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-require 'open3'
+require 'minitest/autorun'
+require 'tmpdir'
 require 'loog'
-require 'backtrace'
+require 'shellwords'
+require_relative 'test__helper'
+require_relative '../lib/qbash'
 
-# Execute one bash command.
-#
+# Test.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
 # Copyright:: Copyright (c) 2024 Yegor Bugayenko
 # License:: MIT
-module Kernel
-  # Execute a single bash command.
-  #
-  # If exit code is not zero, an exception will be raised.
-  #
-  # To escape arguments, use +Shellwords.escape()+ method.
-  #
-  # @param [String] cmd The command to run
-  # @param [String] stdin Input string
-  # @param [Hash] env Environment variables
-  # @param [Loog] loog Logging facility with +.debug()+ method
-  # @param [Array] accepted List of accepted exit codes (accept all if empty)
-  # @return [String] Stdout
-  def bash(cmd, stdin: '', env: {}, loog: Loog::NULL, accept: [0])
-    loog.debug("+ #{cmd}")
-    buf = ''
-    Open3.popen2e(env, "/bin/bash -c #{Shellwords.escape(cmd)}") do |sin, sout, thr|
-      sin.write(stdin)
-      sin.close
-      until sout.eof?
-        begin
-          ln = sout.gets
-        rescue IOError => e
-          ln = Backtrace.new(e).to_s
-        end
-        loog.debug(ln)
-        buf += ln
-      end
-      e = thr.value.to_i
-      raise "The command '#{cmd}' failed with exit code ##{e}\n#{buf}" if !accept.empty? && !accept.include?(e)
+class TestQbash < Minitest::Test
+  def test_basic_run
+    Dir.mktmpdir do |home|
+      qbash("cd #{Shellwords.escape(home)}; echo $FOO | cat > a.txt", env: { 'FOO' => '42' })
+      assert(File.exist?(File.join(home, 'a.txt')))
+      assert_equal("42\n", File.read(File.join(home, 'a.txt')))
     end
-    buf
+  end
+
+  def test_command_as_array
+    assert_equal('123', qbash(['printf 1;', 'printf 2;', 'printf 3']))
+  end
+
+  def test_with_stdin
+    Dir.mktmpdir do |home|
+      f = File.join(home, 'a b c.txt')
+      qbash("cat > #{Shellwords.escape(f)}", stdin: 'hello')
+      assert(File.exist?(f))
+      assert_equal('hello', File.read(f))
+    end
+  end
+
+  def test_with_special_symbols
+    assert_equal("'hi'\n", qbash("echo \"'hi'\""))
+  end
+
+  def test_with_error
+    Dir.mktmpdir do |home|
+      assert_raises { qbash("cat #{Shellwords.escape(File.join(home, 'b.txt'))}") }
+    end
+  end
+
+  def test_ignore_errors
+    Dir.mktmpdir do |home|
+      qbash("cat #{Shellwords.escape(File.join(home, 'b.txt'))}", accept: [])
+    end
   end
 end
