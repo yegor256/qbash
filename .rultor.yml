@@ -23,6 +23,7 @@ docker:
 assets:
   rubygems.yml: yegor256/home#assets/rubygems.yml
 install: |
+  gem install pdd
   pdd -f /dev/null
   bundle install --no-color
 release:
