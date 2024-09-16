@@ -58,4 +58,10 @@ class TestJudge < Minitest::Test
       assert_raises { bash("cat #{Shellwords.escape(File.join(home, 'b.txt'))}") }
     end
   end
+
+  def test_ignore_errors
+    Dir.mktmpdir do |home|
+      bash("cat #{Shellwords.escape(File.join(home, 'b.txt'))}", accept: [])
+    end
+  end
 end

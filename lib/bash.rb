@@ -40,8 +40,9 @@ module Kernel
   # @param [String] stdin Input string
   # @param [Hash] env Environment variables
   # @param [Loog] loog Logging facility with +.debug()+ method
+  # @param [Array] accepted List of accepted exit codes (accept all if empty)
   # @return [String] Stdout
-  def bash(cmd, stdin: '', env: {}, loog: Loog::NULL)
+  def bash(cmd, stdin: '', env: {}, loog: Loog::NULL, accept: [0])
     loog.debug("+ #{cmd}")
     buf = ''
     Open3.popen2e(env, "/bin/bash -c #{Shellwords.escape(cmd)}") do |sin, sout, thr|
@@ -57,7 +58,7 @@ module Kernel
         buf += ln
       end
       e = thr.value.to_i
-      raise "The command '#{cmd}' failed with exit code ##{e}\n#{buf}" unless e.zero?
+      raise "The command '#{cmd}' failed with exit code ##{e}\n#{buf}" if !accept.empty? && !accept.include?(e)
     end
     buf
   end
