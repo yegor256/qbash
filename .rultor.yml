@@ -31,10 +31,10 @@ release:
     [[ "${tag}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || exit -1
     bundle exec rake
     rm -rf *.gem
-    sed -i "s/0\.0\.0/${tag}/g" bash.gemspec
-    git add bash.gemspec
+    sed -i "s/0\.0\.0/${tag}/g" qbash.gemspec
+    git add qbash.gemspec
     git commit -m "version set to ${tag}"
-    gem build bash.gemspec
+    gem build qbash.gemspec
     chmod 0600 ../rubygems.yml
     gem push *.gem --config-file ../rubygems.yml
 merge:

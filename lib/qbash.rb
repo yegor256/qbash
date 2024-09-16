@@ -40,7 +40,7 @@ module Kernel
   # @param [String] stdin Input string
   # @param [Hash] env Environment variables
   # @param [Loog] loog Logging facility with +.debug()+ method
-  # @param [Array] accepted List of accepted exit codes (accept all if empty)
+  # @param [Array] accept List of accepted exit codes (accept all if empty)
   # @param [Boolean] both If set to TRUE, the function returns an array +(stdout, code)+
   # @return [String] Stdout
   def qbash(cmd, stdin: '', env: {}, loog: Loog::NULL, accept: [0], both: false)
