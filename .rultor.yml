@@ -23,7 +23,7 @@ docker:
 assets:
   rubygems.yml: yegor256/home#assets/rubygems.yml
 install: |
-  sudo apt-get -y install ruby-dev libmagic-dev
+  apt-get -y install ruby-dev libmagic-dev
   gem install pdd
   pdd -f /dev/null
   bundle install --no-color
