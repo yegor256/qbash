@@ -23,7 +23,7 @@
 require 'backtrace'
 require 'loog'
 require 'open3'
-require 'Shellwords'
+require 'shellwords'
 
 # Execute one bash command.
 #
