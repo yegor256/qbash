@@ -20,9 +20,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-require 'open3'
-require 'loog'
 require 'backtrace'
+require 'loog'
+require 'open3'
+require 'Shellwords'
 
 # Execute one bash command.
 #
