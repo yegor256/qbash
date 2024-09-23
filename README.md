@@ -27,7 +27,7 @@ Then, you can use [qbash][qbash] global function:
 
 ```ruby
 require 'qbash'
-stdout = qbash('echo "Hello, world!"')
+stdout = qbash('echo "Hello, world!"', log: $stdout)
 ```
 
 If the command fails, an exception will be raised.
@@ -38,13 +38,13 @@ It's possible to provide the standard input and environment variables:
 stdout = qbash('cat > $FILE', env: { 'FILE' => 'a.txt' }, stdin: 'Hello!')
 ```
 
-It's possible to configure the logging facility too, with the help
+It's possible to configure the logging facility too, for example, with the help
 of the [loog](https://github.com/yegor256/loog) gem (the output
 will be returned _and_ printed to the logger):
 
 ```ruby
 require 'loog'
-qbash('echo "Hello, world!"', loog: Loog::VERBOSE)
+qbash('echo "Hello, world!"', log: Loog::VERBOSE)
 ```
 
 You can also make it return both stdout and exit code, with the help
