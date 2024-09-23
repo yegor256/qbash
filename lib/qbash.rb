@@ -37,13 +37,13 @@ module Kernel
   #
   # To escape arguments, use +Shellwords.escape()+ method.
   #
-  # @param [String] cmd The command to run
-  # @param [String] stdin Input string
-  # @param [Hash] env Environment variables
+  # @param [String] cmd The command to run, for example +echo "Hello, world!"+
+  # @param [String] stdin The +stdin+ to provide to the command
+  # @param [Hash] env Hash of environment variables
   # @param [Loog] loog Logging facility with +.debug()+ method (or +$stdout+)
-  # @param [Array] accept List of accepted exit codes (accept all if empty)
+  # @param [Array] accept List of accepted exit codes (accepts all if the list is empty)
   # @param [Boolean] both If set to TRUE, the function returns an array +(stdout, code)+
-  # @return [String] Stdout
+  # @return [String] Everything that was printed to the +stdout+ by the command
   def qbash(cmd, stdin: '', env: {}, loog: Loog::NULL, accept: [0], both: false)
     if loog.respond_to?(:debug)
       loog.debug("+ #{cmd}")
