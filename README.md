@@ -61,6 +61,16 @@ acceptable (there will be no failures ever).
 The command may be provided as an array, which automatically will be
 converted to a string by joining all items with spaces between them.
 
+```ruby
+qbash(
+  [
+    'echo "Hello, world!"'
+    '&& echo "How are you?"',
+    '&& cat /etc/passwd'
+  ]
+)
+```
+
 It is very much recommended to escape all command-line values with the help
 of [Shellwords.escape][shellwords].
 
