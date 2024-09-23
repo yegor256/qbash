@@ -72,7 +72,7 @@ qbash(
 ```
 
 It is very much recommended to escape all command-line values with the help
-of [Shellwords.escape][shellwords].
+of the [`Shellwords.escape()`][shellwords] utility method.
 
 ## How to contribute
 
