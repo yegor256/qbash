@@ -44,6 +44,10 @@ class TestQbash < Minitest::Test
     assert_equal('123', qbash(['printf 1;', 'printf 2;', 'printf 3']))
   end
 
+  def test_log_to_console
+    qbash('echo Hello world!', loog: $stdout)
+  end
+
   def test_with_stdin
     Dir.mktmpdir do |home|
       f = File.join(home, 'a b c.txt')

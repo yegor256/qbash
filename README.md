@@ -72,7 +72,7 @@ qbash(
 ```
 
 It is very much recommended to escape all command-line values with the help
-of the [`Shellwords.escape()`][shellwords] utility method, for example:
+of the [Shellwords.escape()][shellwords] utility method, for example:
 
 ```ruby
 file = '/tmp/test.txt'

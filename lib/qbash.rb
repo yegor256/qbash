@@ -40,12 +40,16 @@ module Kernel
   # @param [String] cmd The command to run
   # @param [String] stdin Input string
   # @param [Hash] env Environment variables
-  # @param [Loog] loog Logging facility with +.debug()+ method
+  # @param [Loog] loog Logging facility with +.debug()+ method (or +$stdout+)
   # @param [Array] accept List of accepted exit codes (accept all if empty)
   # @param [Boolean] both If set to TRUE, the function returns an array +(stdout, code)+
   # @return [String] Stdout
   def qbash(cmd, stdin: '', env: {}, loog: Loog::NULL, accept: [0], both: false)
-    loog.debug("+ #{cmd}")
+    if loog.respond_to?(:debug)
+      loog.debug("+ #{cmd}")
+    else
+      loog.print("+ #{cmd}\n")
+    end
     buf = ''
     e = 1
     cmd = cmd.join(' ') if cmd.is_a?(Array)
@@ -58,7 +62,11 @@ module Kernel
         rescue IOError => e
           ln = Backtrace.new(e).to_s
         end
-        loog.debug(ln)
+        if loog.respond_to?(:debug)
+          loog.debug(ln)
+        else
+          loog.print("#{ln}\n")
+        end
         buf += ln
       end
       e = thr.value.to_i
