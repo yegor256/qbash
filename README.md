@@ -23,7 +23,7 @@ First, install it:
 gem install qbash
 ```
 
-Simply execute a bash command from Ruby:
+Then, you can use [qbash][qbash] global function:
 
 ```ruby
 require 'qbash'
@@ -99,3 +99,4 @@ bundle exec rake
 If it's clean and you don't see any error messages, submit your pull request.
 
 [shellwords]: https://ruby-doc.org/stdlib-3.0.1/libdoc/shellwords/rdoc/Shellwords.html
+[qbash]: https://rubydoc.info/github/yegor256/qbash/master/Kernel#qbash-instance_method
