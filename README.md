@@ -72,7 +72,15 @@ qbash(
 ```
 
 It is very much recommended to escape all command-line values with the help
-of the [`Shellwords.escape()`][shellwords] utility method.
+of the [`Shellwords.escape()`][shellwords] utility method, for example:
+
+```ruby
+file = '/tmp/test.txt'
+qbash("cat #{Shellwords.escape(file)}")
+```
+
+Without such an escaping, in this example, a space inside the `file`
+will lead to an unpredicatable result of the execution.
 
 ## How to contribute
 
