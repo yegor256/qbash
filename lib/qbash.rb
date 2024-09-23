@@ -40,15 +40,15 @@ module Kernel
   # @param [String] cmd The command to run, for example +echo "Hello, world!"+
   # @param [String] stdin The +stdin+ to provide to the command
   # @param [Hash] env Hash of environment variables
-  # @param [Loog] loog Logging facility with +.debug()+ method (or +$stdout+)
+  # @param [Loog|IO] log Logging facility with +.debug()+ method (or +$stdout+)
   # @param [Array] accept List of accepted exit codes (accepts all if the list is empty)
   # @param [Boolean] both If set to TRUE, the function returns an array +(stdout, code)+
   # @return [String] Everything that was printed to the +stdout+ by the command
-  def qbash(cmd, stdin: '', env: {}, loog: Loog::NULL, accept: [0], both: false)
-    if loog.respond_to?(:debug)
-      loog.debug("+ #{cmd}")
+  def qbash(cmd, stdin: '', env: {}, log: Loog::NULL, accept: [0], both: false)
+    if log.respond_to?(:debug)
+      log.debug("+ #{cmd}")
     else
-      loog.print("+ #{cmd}\n")
+      log.print("+ #{cmd}\n")
     end
     buf = ''
     e = 1
@@ -62,10 +62,10 @@ module Kernel
         rescue IOError => e
           ln = Backtrace.new(e).to_s
         end
-        if loog.respond_to?(:debug)
-          loog.debug(ln)
+        if log.respond_to?(:debug)
+          log.debug(ln)
         else
-          loog.print("#{ln}\n")
+          log.print("#{ln}\n")
         end
         buf += ln
       end

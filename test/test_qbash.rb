@@ -45,7 +45,7 @@ class TestQbash < Minitest::Test
   end
 
   def test_log_to_console
-    qbash('echo Hello world!', loog: $stdout)
+    qbash('echo Hello world!', log: $stdout)
   end
 
   def test_with_stdin
