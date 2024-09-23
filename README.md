@@ -11,6 +11,12 @@
 [![Hits-of-Code](https://hitsofcode.com/github/yegor256/qbash)](https://hitsofcode.com/view/github/yegor256/qbash)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/yegor256/qbash/blob/master/LICENSE.txt)
 
+How do you execute a new shell command from Ruby?
+There are [many ways](https://stackoverflow.com/questions/2232).
+None of them offers a one-liner that would execute a command, print
+its output to the console or a logger, and then raise an exception if
+the exit code is not zero. This small gem offers exactly this one-liner.
+
 First, install it:
 
 ```bash
