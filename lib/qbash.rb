@@ -45,6 +45,7 @@ module Kernel
   # @param [Boolean] both If set to TRUE, the function returns an array +(stdout, code)+
   # @return [String] Everything that was printed to the +stdout+ by the command
   def qbash(cmd, stdin: '', env: {}, log: Loog::NULL, accept: [0], both: false)
+    cmd = cmd.join(' ') if cmd.is_a?(Array)
     if log.respond_to?(:debug)
       log.debug("+ #{cmd}")
     else
@@ -52,7 +53,6 @@ module Kernel
     end
     buf = ''
     e = 1
-    cmd = cmd.join(' ') if cmd.is_a?(Array)
     Open3.popen2e(env, "/bin/bash -c #{Shellwords.escape(cmd)}") do |sin, sout, thr|
       sin.write(stdin)
       sin.close
