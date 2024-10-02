@@ -24,6 +24,7 @@ require 'backtrace'
 require 'loog'
 require 'open3'
 require 'shellwords'
+require 'tago'
 
 # Execute one bash command.
 #
@@ -43,8 +44,9 @@ module Kernel
   # @param [Loog|IO] log Logging facility with +.debug()+ method (or +$stdout+)
   # @param [Array] accept List of accepted exit codes (accepts all if the list is empty)
   # @param [Boolean] both If set to TRUE, the function returns an array +(stdout, code)+
+  # @param [Integer] timeout If it's set to non-NIL, the execution will fail after this number of seconds
   # @return [String] Everything that was printed to the +stdout+ by the command
-  def qbash(cmd, stdin: '', env: {}, log: Loog::NULL, accept: [0], both: false)
+  def qbash(cmd, stdin: '', env: {}, log: Loog::NULL, accept: [0], both: false, timeout: nil)
     cmd = cmd.join(' ') if cmd.is_a?(Array)
     if log.respond_to?(:debug)
       log.debug("+ #{cmd}")
@@ -53,25 +55,32 @@ module Kernel
     end
     buf = ''
     e = 1
-    Open3.popen2e(env, "/bin/bash -c #{Shellwords.escape(cmd)}") do |sin, sout, thr|
-      sin.write(stdin)
-      sin.close
-      until sout.eof?
-        begin
-          ln = sout.gets
-        rescue IOError => e
-          ln = Backtrace.new(e).to_s
+    start = Time.now
+    thread =
+      Thread.new do
+        Open3.popen2e(env, "/bin/bash -c #{Shellwords.escape(cmd)}") do |sin, sout, thr|
+          sin.write(stdin)
+          sin.close
+          until sout.eof?
+            begin
+              ln = sout.gets
+            rescue IOError => e
+              ln = Backtrace.new(e).to_s
+            end
+            if log.respond_to?(:debug)
+              log.debug(ln)
+            else
+              log.print("#{ln}\n")
+            end
+            buf += ln
+          end
+          e = thr.value.to_i
+          if !accept.empty? && !accept.include?(e)
+            raise "The command '#{cmd}' failed with exit code ##{e} in #{start.ago}\n#{buf}"
+          end
         end
-        if log.respond_to?(:debug)
-          log.debug(ln)
-        else
-          log.print("#{ln}\n")
-        end
-        buf += ln
       end
-      e = thr.value.to_i
-      raise "The command '#{cmd}' failed with exit code ##{e}\n#{buf}" if !accept.empty? && !accept.include?(e)
-    end
+    raise "Execution of #{cmd} timed out in #{start.ago}" if thread.join(timeout).nil?
     return [buf, e] if both
     buf
   end
