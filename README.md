@@ -32,6 +32,9 @@ stdout = qbash('echo "Hello, world!"', log: $stdout)
 
 If the command fails, an exception will be raised.
 
+The function automatically merges `stderr` with `stdout`
+(you can't change this).
+
 It's possible to provide the standard input and environment variables:
 
 ```ruby

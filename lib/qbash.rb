@@ -38,6 +38,8 @@ module Kernel
   #
   # To escape arguments, use +Shellwords.escape()+ method.
   #
+  # Stderr automatically merges with stdout.
+  #
   # Read this <a href="https://github.com/yegor256/qbash">README</a> file for more details.
   #
   # @param [String] cmd The command to run, for example +echo "Hello, world!"+
