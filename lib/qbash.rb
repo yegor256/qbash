@@ -38,6 +38,8 @@ module Kernel
   #
   # To escape arguments, use +Shellwords.escape()+ method.
   #
+  # Read this <a href="https://github.com/yegor256/qbash">README</a> file for more details.
+  #
   # @param [String] cmd The command to run, for example +echo "Hello, world!"+
   # @param [String] stdin The +stdin+ to provide to the command
   # @param [Hash] env Hash of environment variables
