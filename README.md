@@ -82,6 +82,14 @@ qbash("cat #{Shellwords.escape(file)}")
 Without such an escaping, in this example, a space inside the `file`
 will lead to an unpredicatable result of the execution.
 
+You can also set the maximum time for the command:
+
+```ruby
+qbash("sleep 100", timeout: 4)
+```
+
+This command will raise exception after four seconds.
+
 ## How to contribute
 
 Read
