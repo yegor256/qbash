@@ -48,6 +48,10 @@ class TestQbash < Minitest::Test
     qbash('echo Hello world!', log: $stdout)
   end
 
+  def test_skip_nil
+    assert_equal('Hi!', qbash(['printf', nil, 'Hi!', '']))
+  end
+
   def test_with_stdin
     Dir.mktmpdir do |home|
       f = File.join(home, 'a b c.txt')
