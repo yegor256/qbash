@@ -23,6 +23,7 @@
 require 'minitest/autorun'
 require 'tmpdir'
 require 'loog'
+require 'logger'
 require 'shellwords'
 require_relative 'test__helper'
 require_relative '../lib/qbash'
@@ -46,6 +47,12 @@ class TestQbash < Minitest::Test
 
   def test_log_to_console
     qbash('echo Hello world!', log: $stdout)
+  end
+
+  def test_log_to_loog
+    [Logger::DEBUG, Logger::INFO, Logger::WARN, Logger::ERROR].each do |level|
+      qbash('echo Hello world!', log: Loog::NULL, level:)
+    end
   end
 
   def test_skip_nil

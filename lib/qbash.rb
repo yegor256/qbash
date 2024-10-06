@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 require 'backtrace'
+require 'logger'
 require 'loog'
 require 'open3'
 require 'shellwords'
@@ -53,11 +54,25 @@ module Kernel
   # @param [Array] accept List of accepted exit codes (accepts all if the list is +nil+)
   # @param [Boolean] both If set to TRUE, the function returns an array +(stdout, code)+
   # @param [Integer] timeout If it's set to non-NIL, the execution will fail after this number of seconds
+  # @param [Integer] level Logging level (use +Logger::DEBUG+, +Logger::INFO+, +Logger::WARN+, or +Logger::ERROR+)
   # @return [String] Everything that was printed to the +stdout+ by the command
-  def qbash(cmd, stdin: '', env: {}, log: Loog::NULL, accept: [0], both: false, timeout: nil)
+  def qbash(cmd, stdin: '', env: {}, log: Loog::NULL, accept: [0], both: false, timeout: nil, level: Logger::DEBUG)
     cmd = cmd.reject { |a| a.nil? || a.empty? }.join(' ') if cmd.is_a?(Array)
-    if log.respond_to?(:debug)
-      log.debug("+ #{cmd}")
+    mtd =
+      case level
+      when Logger::DEBUG
+        :debug
+      when Logger::INFO
+        :info
+      when Logger::WARN
+        :warn
+      when Logger::ERROR
+        :error
+      else
+        raise "Unknown log level #{level}"
+      end
+    if log.respond_to?(mtd)
+      log.__send__(mtd, "+ #{cmd}")
     else
       log.print("+ #{cmd}\n")
     end
@@ -75,8 +90,8 @@ module Kernel
             rescue IOError => e
               ln = Backtrace.new(e).to_s
             end
-            if log.respond_to?(:debug)
-              log.debug(ln)
+            if log.respond_to?(mtd)
+              log.__send__(mtd, ln)
             else
               log.print("#{ln}\n")
             end
