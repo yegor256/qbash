@@ -75,13 +75,13 @@ class TestQbash < Minitest::Test
 
   def test_ignore_errors
     Dir.mktmpdir do |home|
-      qbash("cat #{Shellwords.escape(File.join(home, 'b.txt'))}", accept: [])
+      qbash("cat #{Shellwords.escape(File.join(home, 'b.txt'))}", accept: nil)
     end
   end
 
   def test_with_both
     Dir.mktmpdir do |home|
-      stdout, code = qbash("cat #{Shellwords.escape(File.join(home, 'foo.txt'))}", accept: [], both: true)
+      stdout, code = qbash("cat #{Shellwords.escape(File.join(home, 'foo.txt'))}", accept: nil, both: true)
       assert(code.positive?)
       assert(!stdout.empty?)
     end

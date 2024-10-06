@@ -34,6 +34,10 @@ require 'tago'
 module Kernel
   # Execute a single bash command.
   #
+  # For example:
+  #
+  #  year = qbash('date +%Y')
+  #
   # If exit code is not zero, an exception will be raised.
   #
   # To escape arguments, use +Shellwords.escape()+ method.
@@ -46,7 +50,7 @@ module Kernel
   # @param [String] stdin The +stdin+ to provide to the command
   # @param [Hash] env Hash of environment variables
   # @param [Loog|IO] log Logging facility with +.debug()+ method (or +$stdout+)
-  # @param [Array] accept List of accepted exit codes (accepts all if the list is empty)
+  # @param [Array] accept List of accepted exit codes (accepts all if the list is +nil+)
   # @param [Boolean] both If set to TRUE, the function returns an array +(stdout, code)+
   # @param [Integer] timeout If it's set to non-NIL, the execution will fail after this number of seconds
   # @return [String] Everything that was printed to the +stdout+ by the command
@@ -79,7 +83,7 @@ module Kernel
             buf += ln
           end
           e = thr.value.to_i
-          if !accept.empty? && !accept.include?(e)
+          if !accept.nil? && !accept.include?(e)
             raise "The command '#{cmd}' failed with exit code ##{e} in #{start.ago}\n#{buf}"
           end
         end
