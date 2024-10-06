@@ -55,7 +55,7 @@ module Kernel
   # @param [Integer] timeout If it's set to non-NIL, the execution will fail after this number of seconds
   # @return [String] Everything that was printed to the +stdout+ by the command
   def qbash(cmd, stdin: '', env: {}, log: Loog::NULL, accept: [0], both: false, timeout: nil)
-    cmd = cmd.join(' ') if cmd.is_a?(Array)
+    cmd = cmd.reject { |a| a.nil? || a.empty? }.join(' ') if cmd.is_a?(Array)
     if log.respond_to?(:debug)
       log.debug("+ #{cmd}")
     else
