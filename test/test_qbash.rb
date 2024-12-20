@@ -88,6 +88,10 @@ class TestQbash < Minitest::Test
     end
   end
 
+  def test_fails_when_nil_env
+    assert_raises { qbash('echo hi', env: { a: nil }) }
+  end
+
   def test_ignore_errors
     Dir.mktmpdir do |home|
       qbash("cat #{Shellwords.escape(File.join(home, 'b.txt'))}", accept: nil)

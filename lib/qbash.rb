@@ -57,6 +57,7 @@ module Kernel
   # @param [Integer] level Logging level (use +Logger::DEBUG+, +Logger::INFO+, +Logger::WARN+, or +Logger::ERROR+)
   # @return [String] Everything that was printed to the +stdout+ by the command
   def qbash(cmd, stdin: '', env: {}, log: Loog::NULL, accept: [0], both: false, timeout: nil, level: Logger::DEBUG)
+    env.each { |k, v| raise "env[#{k}] is nil" if v.nil? }
     cmd = cmd.reject { |a| a.nil? || a.empty? }.join(' ') if cmd.is_a?(Array)
     mtd =
       case level
