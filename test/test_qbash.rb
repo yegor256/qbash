@@ -72,12 +72,6 @@ class TestQbash < Minitest::Test
     end
   end
 
-  def test_with_timeout
-    assert_raises do
-      qbash('sleep 100', timeout: 0.1)
-    end
-  end
-
   def test_with_special_symbols
     assert_equal("'hi'\n", qbash("echo \"'hi'\""))
   end

@@ -85,13 +85,18 @@ qbash("cat #{Shellwords.escape(file)}")
 Without such an escaping, in this example, a space inside the `file`
 will lead to an unpredicatable result of the execution.
 
-You can also set the maximum time for the command:
+If you want to stop sooner than the command finishes, use
+[`timeout`](https://github.com/ruby/timeout) gem:
 
 ```ruby
-qbash("sleep 100", timeout: 4)
+require 'timeout'
+Timeout.timeout(5) do
+  qbash('sleep 100')
+end
 ```
 
-This command will raise exception after four seconds.
+This command will raise `Timeout::Error` exception after five seconds
+of waiting for the `sleep` to finish.
 
 ## How to contribute
 

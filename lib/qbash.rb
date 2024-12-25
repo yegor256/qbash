@@ -53,10 +53,9 @@ module Kernel
   # @param [Loog|IO] log Logging facility with +.debug()+ method (or +$stdout+)
   # @param [Array] accept List of accepted exit codes (accepts all if the list is +nil+)
   # @param [Boolean] both If set to TRUE, the function returns an array +(stdout, code)+
-  # @param [Integer] timeout If it's set to non-NIL, the execution will fail after this number of seconds
   # @param [Integer] level Logging level (use +Logger::DEBUG+, +Logger::INFO+, +Logger::WARN+, or +Logger::ERROR+)
   # @return [String] Everything that was printed to the +stdout+ by the command
-  def qbash(cmd, stdin: '', env: {}, log: Loog::NULL, accept: [0], both: false, timeout: nil, level: Logger::DEBUG)
+  def qbash(cmd, stdin: '', env: {}, log: Loog::NULL, accept: [0], both: false, level: Logger::DEBUG)
     env.each { |k, v| raise "env[#{k}] is nil" if v.nil? }
     cmd = cmd.reject { |a| a.nil? || a.empty? }.join(' ') if cmd.is_a?(Array)
     mtd =
@@ -104,7 +103,7 @@ module Kernel
           end
         end
       end
-    raise "Execution of #{cmd} timed out in #{start.ago}" if thread.join(timeout).nil?
+    thread.join
     return [buf, e] if both
     buf
   end
