@@ -50,7 +50,7 @@ module Kernel
   # @param [String] cmd The command to run, for example +echo "Hello, world!"+
   # @param [String] stdin The +stdin+ to provide to the command
   # @param [Hash] env Hash of environment variables
-  # @param [Loog|IO] log Logging facility with +.debug()+ method (or +$stdout+)
+  # @param [Loog|IO] log Logging facility with +.debug()+ method (or +$stdout+, or nil if should go to +/dev/null+)
   # @param [Array] accept List of accepted exit codes (accepts all if the list is +nil+)
   # @param [Boolean] both If set to TRUE, the function returns an array +(stdout, code)+
   # @param [Integer] level Logging level (use +Logger::DEBUG+, +Logger::INFO+, +Logger::WARN+, or +Logger::ERROR+)
@@ -71,7 +71,9 @@ module Kernel
       else
         raise "Unknown log level #{level}"
       end
-    if log.respond_to?(mtd)
+    if log.nil?
+      # nothing to print
+    elsif log.respond_to?(mtd)
       log.__send__(mtd, "+ #{cmd}")
     else
       log.print("+ #{cmd}\n")
@@ -90,7 +92,9 @@ module Kernel
             rescue IOError => e
               ln = Backtrace.new(e).to_s
             end
-            if log.respond_to?(mtd)
+            if log.nil?
+              # no logging
+            elsif log.respond_to?(mtd)
               log.__send__(mtd, ln)
             else
               log.print("#{ln}\n")

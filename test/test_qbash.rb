@@ -59,6 +59,10 @@ class TestQbash < Minitest::Test
     assert_equal('Hi!', qbash(['printf', nil, 'Hi!', '']))
   end
 
+  def test_log_to_nil
+    assert_equal("yes\n", qbash('echo yes', log: nil))
+  end
+
   def test_accept_zero
     qbash('echo hi', accept: nil)
   end
