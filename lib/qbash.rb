@@ -57,7 +57,7 @@ module Kernel
   # @return [String] Everything that was printed to the +stdout+ by the command
   def qbash(cmd, stdin: '', env: {}, log: Loog::NULL, accept: [0], both: false, level: Logger::DEBUG)
     env.each { |k, v| raise "env[#{k}] is nil" if v.nil? }
-    cmd = cmd.reject { |a| a.nil? || a.empty? }.join(' ') if cmd.is_a?(Array)
+    cmd = cmd.reject { |a| a.nil? || (a.is_a?(String) && a.empty?) }.join(' ') if cmd.is_a?(Array)
     mtd =
       case level
       when Logger::DEBUG
