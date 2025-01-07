@@ -81,33 +81,29 @@ module Kernel
     buf = ''
     e = 1
     start = Time.now
-    thread =
-      Thread.new do
-        Open3.popen2e(env, "/bin/bash -c #{Shellwords.escape(cmd)}") do |sin, sout, thr|
-          sin.write(stdin)
-          sin.close
-          until sout.eof?
-            begin
-              ln = sout.gets
-            rescue IOError => e
-              ln = Backtrace.new(e).to_s
-            end
-            if log.nil?
-              # no logging
-            elsif log.respond_to?(mtd)
-              log.__send__(mtd, ln)
-            else
-              log.print("#{ln}\n")
-            end
-            buf += ln
-          end
-          e = thr.value.to_i
-          if !accept.nil? && !accept.include?(e)
-            raise "The command '#{cmd}' failed with exit code ##{e} in #{start.ago}\n#{buf}"
-          end
+    Open3.popen2e(env, "/bin/bash -c #{Shellwords.escape(cmd)}") do |sin, sout, thr|
+      sin.write(stdin)
+      sin.close
+      until sout.eof?
+        begin
+          ln = sout.gets
+        rescue IOError => e
+          ln = Backtrace.new(e).to_s
         end
+        if log.nil?
+          # no logging
+        elsif log.respond_to?(mtd)
+          log.__send__(mtd, ln)
+        else
+          log.print("#{ln}\n")
+        end
+        buf += ln
       end
-    thread.join
+      e = thr.value.to_i
+      if !accept.nil? && !accept.include?(e)
+        raise "The command '#{cmd}' failed with exit code ##{e} in #{start.ago}\n#{buf}"
+      end
+    end
     return [buf, e] if both
     buf
   end
