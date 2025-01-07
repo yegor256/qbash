@@ -45,6 +45,10 @@ module Kernel
   #
   # Stderr automatically merges with stdout.
   #
+  # If you need full control over the process started, provide
+  # a block, which will receive process ID (integer) once the process
+  # is started.
+  #
   # Read this <a href="https://github.com/yegor256/qbash">README</a> file for more details.
   #
   # @param [String] cmd The command to run, for example +echo "Hello, world!"+
@@ -84,24 +88,28 @@ module Kernel
     Open3.popen2e(env, "/bin/bash -c #{Shellwords.escape(cmd)}") do |sin, sout, thr|
       sin.write(stdin)
       sin.close
-      until sout.eof?
-        begin
-          ln = sout.gets
-        rescue IOError => e
-          ln = Backtrace.new(e).to_s
+      if block_given?
+        yield thr.pid
+      else
+        until sout.eof?
+          begin
+            ln = sout.gets
+          rescue IOError => e
+            ln = Backtrace.new(e).to_s
+          end
+          if log.nil?
+            # no logging
+          elsif log.respond_to?(mtd)
+            log.__send__(mtd, ln)
+          else
+            log.print("#{ln}\n")
+          end
+          buf += ln
         end
-        if log.nil?
-          # no logging
-        elsif log.respond_to?(mtd)
-          log.__send__(mtd, ln)
-        else
-          log.print("#{ln}\n")
+        e = thr.value.to_i
+        if !accept.nil? && !accept.include?(e)
+          raise "The command '#{cmd}' failed with exit code ##{e} in #{start.ago}\n#{buf}"
         end
-        buf += ln
-      end
-      e = thr.value.to_i
-      if !accept.nil? && !accept.include?(e)
-        raise "The command '#{cmd}' failed with exit code ##{e} in #{start.ago}\n#{buf}"
       end
     end
     return [buf, e] if both

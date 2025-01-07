@@ -96,6 +96,14 @@ class TestQbash < Minitest::Test
     end
   end
 
+  def test_kills_in_thread
+    Thread.new do
+      qbash('sleep 9999') do |pid|
+        Process.kill('KILL', pid)
+      end
+    end.join
+  end
+
   def test_with_both
     Dir.mktmpdir do |home|
       stdout, code = qbash("cat #{Shellwords.escape(File.join(home, 'foo.txt'))}", accept: nil, both: true)
