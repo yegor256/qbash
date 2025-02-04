@@ -104,6 +104,23 @@ class TestQbash < Minitest::Test
     end.join
   end
 
+  def test_logs_in_background
+    stdout = nil
+    buf = Loog::Buffer.new
+    Dir.mktmpdir do |home|
+      flag = File.join(home, 'started.txt')
+      Thread.new do
+        stdout =
+          qbash("while true; do date; touch #{Shellwords.escape(flag)}; sleep 0.001; done", log: buf) do |pid|
+            loop { break if File.exist?(flag) }
+            Process.kill('KILL', pid)
+          end
+      end.join
+    end
+    refute_empty(buf.to_s)
+    refute_empty(stdout)
+  end
+
   def test_with_both
     Dir.mktmpdir do |home|
       stdout, code = qbash("cat #{Shellwords.escape(File.join(home, 'foo.txt'))}", accept: nil, both: true)

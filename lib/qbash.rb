@@ -90,7 +90,7 @@ module Kernel
       sin.close
       if block_given?
         Thread.new do
-          until sout.eof?
+          until sout.closed?
             begin
               ln = sout.gets
             rescue IOError => e
