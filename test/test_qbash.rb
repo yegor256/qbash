@@ -119,6 +119,8 @@ class TestQbash < Minitest::Test
     end
     refute_empty(buf.to_s)
     refute_empty(stdout)
+    refute_includes(stdout, "\n\n")
+    refute_includes(buf.to_s, "\n\n")
   end
 
   def test_with_both
