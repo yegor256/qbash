@@ -36,7 +36,7 @@ class TestQbash < Minitest::Test
   def test_basic_run
     Dir.mktmpdir do |home|
       qbash("cd #{Shellwords.escape(home)}; echo $FOO | cat > a.txt", env: { 'FOO' => '42' })
-      assert(File.exist?(File.join(home, 'a.txt')))
+      assert_path_exists(File.join(home, 'a.txt'))
       assert_equal("42\n", File.read(File.join(home, 'a.txt')))
     end
   end
@@ -71,7 +71,7 @@ class TestQbash < Minitest::Test
     Dir.mktmpdir do |home|
       f = File.join(home, 'a b c.txt')
       qbash("cat > #{Shellwords.escape(f)}", stdin: 'hello')
-      assert(File.exist?(f))
+      assert_path_exists(f)
       assert_equal('hello', File.read(f))
     end
   end
@@ -82,12 +82,12 @@ class TestQbash < Minitest::Test
 
   def test_with_error
     Dir.mktmpdir do |home|
-      assert_raises { qbash("cat #{Shellwords.escape(File.join(home, 'b.txt'))}") }
+      assert_raises(StandardError) { qbash("cat #{Shellwords.escape(File.join(home, 'b.txt'))}") }
     end
   end
 
   def test_fails_when_nil_env
-    assert_raises { qbash('echo hi', env: { a: nil }) }
+    assert_raises(StandardError) { qbash('echo hi', env: { a: nil }) }
   end
 
   def test_ignore_errors
@@ -107,8 +107,8 @@ class TestQbash < Minitest::Test
   def test_with_both
     Dir.mktmpdir do |home|
       stdout, code = qbash("cat #{Shellwords.escape(File.join(home, 'foo.txt'))}", accept: nil, both: true)
-      assert(code.positive?)
-      assert(!stdout.empty?)
+      assert_predicate(code, :positive?)
+      refute_empty(stdout)
     end
   end
 end
