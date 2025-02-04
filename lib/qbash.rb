@@ -102,7 +102,7 @@ module Kernel
             elsif log.respond_to?(mtd)
               log.__send__(mtd, ln)
             else
-              log.print("#{ln}\n")
+              log.print(ln)
             end
             buf += ln
           end
@@ -120,7 +120,7 @@ module Kernel
           elsif log.respond_to?(mtd)
             log.__send__(mtd, ln)
           else
-            log.print("#{ln}\n")
+            log.print(ln)
           end
           buf += ln
         end
