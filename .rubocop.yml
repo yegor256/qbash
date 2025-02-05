@@ -31,7 +31,6 @@ require:
   - rubocop-minitest
   - rubocop-performance
   - rubocop-rake
-
 Minitest/EmptyLineBeforeAssertionMethods:
   Enabled: false
 Metrics/ParameterLists:
