@@ -74,6 +74,16 @@ qbash(
 )
 ```
 
+If a block is given to `qbash`, it will run the command in background mode,
+waiting for the block to finish. Once it's finished, the command will be
+terminated via the `TERM` [signal]:
+
+```ruby
+qbash('sleep 9999') do |pid|
+  # do something
+end
+```
+
 It is very much recommended to escape all command-line values with the help
 of the [Shellwords.escape()][shellwords] utility method, for example:
 
@@ -86,7 +96,7 @@ Without such an escaping, in this example, a space inside the `file`
 will lead to an unpredicatable result of the execution.
 
 If you want to stop sooner than the command finishes, use
-[`timeout`](https://github.com/ruby/timeout) gem:
+[timeout] gem:
 
 ```ruby
 require 'timeout'
@@ -116,3 +126,5 @@ If it's clean and you don't see any error messages, submit your pull request.
 
 [shellwords]: https://ruby-doc.org/stdlib-3.0.1/libdoc/shellwords/rdoc/Shellwords.html
 [qbash]: https://rubydoc.info/github/yegor256/qbash/master/Kernel#qbash-instance_method
+[signal]: https://en.wikipedia.org/wiki/Signal_(IPC)
+[timeout]: https://github.com/ruby/timeout

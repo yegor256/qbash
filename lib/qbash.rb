@@ -89,25 +89,31 @@ module Kernel
       sin.write(stdin)
       sin.close
       if block_given?
-        Thread.new do
-          until sout.closed?
-            begin
-              ln = sout.gets
-            rescue IOError => e
-              ln = Backtrace.new(e).to_s
+        closed = false
+        watch =
+          Thread.new do
+            until closed
+              begin
+                ln = sout.gets
+              rescue IOError => e
+                ln = Backtrace.new(e).to_s
+              end
+              ln = "##{thr.pid}: #{ln}"
+              if log.nil?
+                # no logging
+              elsif log.respond_to?(mtd)
+                log.__send__(mtd, ln)
+              else
+                log.print(ln)
+              end
+              buf += ln
             end
-            ln = "##{thr.pid}: #{ln}"
-            if log.nil?
-              # no logging
-            elsif log.respond_to?(mtd)
-              log.__send__(mtd, ln)
-            else
-              log.print(ln)
-            end
-            buf += ln
           end
-        end
-        yield thr.pid
+        pid = thr.pid
+        yield pid
+        closed = true
+        Process.kill('TERM', pid)
+        watch.join
       else
         until sout.eof?
           begin
