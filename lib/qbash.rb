@@ -111,8 +111,12 @@ module Kernel
           end
         pid = thr.pid
         yield pid
+        begin
+          Process.kill('TERM', pid)
+        rescue Errno::ESRCH
+          # simply ignore it
+        end
         closed = true
-        Process.kill('TERM', pid)
         watch.join
       else
         until sout.eof?
