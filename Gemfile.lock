@@ -112,7 +112,7 @@ GEM
     loog (0.6.0)
     mini_mime (1.1.5)
     mini_portile2 (2.8.8)
-    minitest (5.25.4)
+    minitest (5.25.5)
     minitest-reporters (1.7.1)
       ansi
       builder
@@ -270,7 +270,7 @@ PLATFORMS
 
 DEPENDENCIES
   cucumber (= 9.2.1)
-  minitest (= 5.25.4)
+  minitest (= 5.25.5)
   minitest-reporters (= 1.7.1)
   net-ping (= 2.0.8)
   qbash!
