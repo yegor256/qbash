@@ -1,13 +1,13 @@
 # Quick and Simple Executor of Bash Commands
 
-[![DevOps By Rultor.com](http://www.rultor.com/b/yegor256/qbash)](http://www.rultor.com/p/yegor256/qbash)
+[![DevOps By Rultor.com](https://www.rultor.com/b/yegor256/qbash)](https://www.rultor.com/p/yegor256/qbash)
 [![We recommend RubyMine](https://www.elegantobjects.org/rubymine.svg)](https://www.jetbrains.com/ruby/)
 
 [![rake](https://github.com/yegor256/qbash/actions/workflows/rake.yml/badge.svg)](https://github.com/yegor256/qbash/actions/workflows/rake.yml)
-[![PDD status](http://www.0pdd.com/svg?name=yegor256/qbash)](http://www.0pdd.com/p?name=yegor256/qbash)
-[![Gem Version](https://badge.fury.io/rb/qbash.svg)](http://badge.fury.io/rb/qbash)
+[![PDD status](https://www.0pdd.com/svg?name=yegor256/qbash)](https://www.0pdd.com/p?name=yegor256/qbash)
+[![Gem Version](https://badge.fury.io/rb/qbash.svg)](https://badge.fury.io/rb/qbash)
 [![Test Coverage](https://img.shields.io/codecov/c/github/yegor256/qbash.svg)](https://codecov.io/github/yegor256/qbash?branch=master)
-[![Yard Docs](http://img.shields.io/badge/yard-docs-blue.svg)](http://rubydoc.info/github/yegor256/qbash/master/frames)
+[![Yard Docs](https://img.shields.io/badge/yard-docs-blue.svg)](https://rubydoc.info/github/yegor256/qbash/master/frames)
 [![Hits-of-Code](https://hitsofcode.com/github/yegor256/qbash)](https://hitsofcode.com/view/github/yegor256/qbash)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/yegor256/qbash/blob/master/LICENSE.txt)
 
