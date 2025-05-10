@@ -16,25 +16,64 @@ require 'tago'
 # Copyright:: Copyright (c) 2024-2025 Yegor Bugayenko
 # License:: MIT
 module Kernel
-  # Execute a single bash command.
+  # Execute a single bash command safely with proper error handling.
   #
-  # For example:
+  # QBash provides a safe way to execute shell commands with proper error handling,
+  # logging, and stdin/stdout management. It's designed to be simple for basic use
+  # cases while offering powerful options for advanced scenarios.
   #
-  #  year = qbash('date +%Y')
+  # == Basic Usage
   #
-  # If exit code is not zero, an exception will be raised.
+  #   # Execute a command and get its output
+  #   year = qbash('date +%Y')
+  #   puts "Current year: #{year}"
   #
-  # To escape arguments, use +Shellwords.escape()+ method.
+  #   # Execute a command that might fail
+  #   files = qbash('find /tmp -name "*.log"')
   #
-  # Stderr automatically merges with stdout.
+  # == Working with Exit Codes
   #
-  # If you need full control over the process started, provide
-  # a block, which will receive process ID (integer) once the process
-  # is started.
+  #   # Get both output and exit code
+  #   output, code = qbash('grep "error" /var/log/system.log', both: true)
+  #   puts "Command succeeded" if code.zero?
+  #
+  #   # Accept multiple exit codes as valid
+  #   result = qbash('grep "pattern" file.txt', accept: [0, 1])
+  #
+  # == Providing Input via STDIN
+  #
+  #   # Pass data to command's stdin
+  #   result = qbash('wc -l', stdin: "line 1\nline 2\nline 3")
+  #
+  # == Environment Variables
+  #
+  #   # Set environment variables for the command
+  #   output = qbash('echo $NAME', env: { 'NAME' => 'Ruby' })
+  #
+  # == Logging
+  #
+  #   # Enable detailed logging to stdout
+  #   qbash('ls -la', log: $stdout)
+  #
+  #   # Use custom logger with specific level
+  #   logger = Logger.new($stdout)
+  #   qbash('make all', log: logger, level: Logger::INFO)
+  #
+  # == Process Control
+  #
+  #   # Get control over long-running process
+  #   qbash('sleep 30') do |pid|
+  #     puts "Process #{pid} is running..."
+  #     # Do something while process is running
+  #     # Process will be terminated when block exits
+  #   end
+  #
+  # For command with multiple arguments, you can use +Shellwords.escape()+ to
+  # properly escape each argument. Stderr automatically merges with stdout.
   #
   # Read this <a href="https://github.com/yegor256/qbash">README</a> file for more details.
   #
-  # @param [String] cmd The command to run, for example +echo "Hello, world!"+
+  # @param [String, Array] cmd The command to run (String or Array of arguments)
   # @param [String] stdin The +stdin+ to provide to the command
   # @param [Hash] env Hash of environment variables
   # @param [Loog|IO] log Logging facility with +.debug()+ method (or +$stdout+, or nil if should go to +/dev/null+)
