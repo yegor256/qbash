@@ -12,7 +12,7 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/yegor256/qbash/blob/master/LICENSE.txt)
 
 How do you execute a new shell command from Ruby?
-There are [many ways](https://stackoverflow.com/questions/2232).
+There are [many ways][so-question].
 None of them offers a one-liner that would execute a command, print
 its output to the console or a logger, and then raise an exception if
 the exit code is not zero. This small gem offers exactly this one-liner.
@@ -67,7 +67,7 @@ converted to a string by joining all items with spaces between them.
 ```ruby
 qbash(
   [
-    'echo "Hello, world!"'
+    'echo "Hello, world!"',
     '&& echo "How are you?"',
     '&& cat /etc/passwd'
   ]
@@ -93,7 +93,7 @@ qbash("cat #{Shellwords.escape(file)}")
 ```
 
 Without such an escaping, in this example, a space inside the `file`
-will lead to an unpredicatable result of the execution.
+will lead to an unpredictable result of the execution.
 
 If you want to stop sooner than the command finishes, use
 [timeout] gem:
@@ -128,3 +128,4 @@ If it's clean and you don't see any error messages, submit your pull request.
 [qbash]: https://rubydoc.info/github/yegor256/qbash/master/Kernel#qbash-instance_method
 [signal]: https://en.wikipedia.org/wiki/Signal_(IPC)
 [timeout]: https://github.com/ruby/timeout
+[so-question]: https://stackoverflow.com/questions/2232/
