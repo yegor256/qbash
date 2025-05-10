@@ -81,6 +81,8 @@ module Kernel
               rescue IOError => e
                 ln = Backtrace.new(e).to_s
               end
+              next if ln.nil?
+              next if ln.empty?
               ln = "##{thr.pid}: #{ln}"
               if log.nil?
                 # no logging
