@@ -113,4 +113,18 @@ class TestQbash < Minitest::Test
       refute_empty(stdout)
     end
   end
+
+  def test_exists_after_background_stop
+    stop = false
+    t =
+      Thread.new do
+        qbash('tail -f /dev/null') do
+          loop { break if stop }
+        end
+      end
+    sleep(0.1)
+    stop = true
+    t.join
+    refute_predicate(t, :alive?)
+  end
 end

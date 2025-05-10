@@ -84,26 +84,30 @@ module Kernel
   def qbash(cmd, stdin: '', env: {}, log: Loog::NULL, accept: [0], both: false, level: Logger::DEBUG)
     env.each { |k, v| raise "env[#{k}] is nil" if v.nil? }
     cmd = cmd.reject { |a| a.nil? || (a.is_a?(String) && a.empty?) }.join(' ') if cmd.is_a?(Array)
-    mtd =
-      case level
-      when Logger::DEBUG
-        :debug
-      when Logger::INFO
-        :info
-      when Logger::WARN
-        :warn
-      when Logger::ERROR
-        :error
-      else
-        raise "Unknown log level #{level}"
+    logit =
+      lambda do |msg|
+        mtd =
+          case level
+          when Logger::DEBUG
+            :debug
+          when Logger::INFO
+            :info
+          when Logger::WARN
+            :warn
+          when Logger::ERROR
+            :error
+          else
+            raise "Unknown log level #{level}"
+          end
+        if log.nil?
+          # nothing to print
+        elsif log.respond_to?(mtd)
+          log.__send__(mtd, msg)
+        else
+          log.print("#{msg}\n")
+        end
       end
-    if log.nil?
-      # nothing to print
-    elsif log.respond_to?(mtd)
-      log.__send__(mtd, "+ #{cmd}")
-    else
-      log.print("+ #{cmd}\n")
-    end
+    logit["+ #{cmd}"]
     buf = ''
     e = 1
     start = Time.now
@@ -123,13 +127,7 @@ module Kernel
               next if ln.nil?
               next if ln.empty?
               ln = "##{ctrl.pid}: #{ln}"
-              if log.nil?
-                # no logging
-              elsif log.respond_to?(mtd)
-                log.__send__(mtd, ln)
-              else
-                log.print(ln)
-              end
+              logit[ln]
               buf += ln
             end
           end
@@ -137,8 +135,8 @@ module Kernel
         yield pid
         begin
           Process.kill('TERM', pid)
-        rescue Errno::ESRCH
-          # simply ignore it
+        rescue Errno::ESRCH => e
+          logit[e.message]
         end
         closed = true
         watch.join
@@ -149,13 +147,9 @@ module Kernel
           rescue IOError => e
             ln = Backtrace.new(e).to_s
           end
-          if log.nil?
-            # no logging
-          elsif log.respond_to?(mtd)
-            log.__send__(mtd, ln)
-          else
-            log.print(ln)
-          end
+          next if ln.nil?
+          next if ln.empty?
+          logit[ln]
           buf += ln
         end
         e = ctrl.value.to_i
