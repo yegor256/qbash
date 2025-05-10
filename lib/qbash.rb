@@ -107,7 +107,7 @@ module Kernel
     buf = ''
     e = 1
     start = Time.now
-    Open3.popen2e(env, "/bin/bash -c #{Shellwords.escape(cmd)}") do |sin, sout, thr|
+    Open3.popen2e(env, "/bin/bash -c #{Shellwords.escape(cmd)}") do |sin, sout, ctrl|
       sin.write(stdin)
       sin.close
       if block_given?
@@ -122,7 +122,7 @@ module Kernel
               end
               next if ln.nil?
               next if ln.empty?
-              ln = "##{thr.pid}: #{ln}"
+              ln = "##{ctrl.pid}: #{ln}"
               if log.nil?
                 # no logging
               elsif log.respond_to?(mtd)
@@ -133,7 +133,7 @@ module Kernel
               buf += ln
             end
           end
-        pid = thr.pid
+        pid = ctrl.pid
         yield pid
         begin
           Process.kill('TERM', pid)
@@ -158,7 +158,7 @@ module Kernel
           end
           buf += ln
         end
-        e = thr.value.to_i
+        e = ctrl.value.to_i
         if !accept.nil? && !accept.include?(e)
           raise "The command '#{cmd}' failed with exit code ##{e} in #{start.ago}\n#{buf}"
         end
