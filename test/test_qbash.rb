@@ -118,7 +118,7 @@ class TestQbash < Minitest::Test
     stop = false
     t =
       Thread.new do
-        qbash('tail -f /dev/null') do
+        qbash('trap "" TERM; tail -f /dev/null', accept: nil) do
           loop { break if stop }
         end
       end

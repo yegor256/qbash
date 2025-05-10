@@ -9,3 +9,5 @@ node_modules/
 rdoc/
 temp/
 vendor/
+
+**/.claude/settings.local.json

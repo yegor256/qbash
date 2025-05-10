@@ -114,26 +114,24 @@ module Kernel
     Open3.popen2e(env, "/bin/bash -c #{Shellwords.escape(cmd)}") do |sin, sout, ctrl|
       consume =
         lambda do
-          until sout.eof?
-            begin
-              ln = sout.gets
-            rescue IOError => e
-              ln = Backtrace.new(e).to_s
-            end
+          loop do
+            break if sout.eof?
+            ln = sout.gets
             next if ln.nil?
             next if ln.empty?
             buf += ln
             ln = "##{ctrl.pid}: #{ln}"
             logit[ln]
+          rescue IOError => e
+            logit[e.message]
+            break
           end
         end
       sin.write(stdin)
       sin.close
       if block_given?
-        watch =
-          Thread.new do
-            consume.call
-          end
+        watch = Thread.new { consume.call }
+        watch.abort_on_exception = true
         pid = ctrl.pid
         yield pid
         begin
@@ -141,13 +139,14 @@ module Kernel
         rescue Errno::ESRCH => e
           logit[e.message]
         end
+        sout.close
         watch.join
       else
         consume.call
-        e = ctrl.value.to_i
-        if !accept.nil? && !accept.include?(e)
-          raise "The command '#{cmd}' failed with exit code ##{e} in #{start.ago}\n#{buf}"
-        end
+      end
+      e = ctrl.value.to_i
+      if !accept.nil? && !accept.include?(e)
+        raise "The command '#{cmd}' failed with exit code ##{e} in #{start.ago}\n#{buf}"
       end
     end
     return [buf, e] if both
