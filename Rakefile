@@ -5,7 +5,6 @@
 
 require 'rubygems'
 require 'rake'
-require 'rdoc'
 require 'rake/clean'
 
 def name
@@ -40,5 +39,4 @@ require 'rubocop/rake_task'
 desc 'Run RuboCop on all directories'
 RuboCop::RakeTask.new(:rubocop) do |task|
   task.fail_on_error = true
-  task.requires << 'rubocop-rspec'
 end
