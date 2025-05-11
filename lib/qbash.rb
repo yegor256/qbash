@@ -135,7 +135,7 @@ module Kernel
         pid = ctrl.pid
         yield pid
         sout.close
-        watch.join(1)
+        watch.join(0.01)
         watch.kill if watch.alive?
         begin
           Process.getpgid(pid) # should be dead already (raising Errno::ESRCH)
