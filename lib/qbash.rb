@@ -142,7 +142,7 @@ module Kernel
         loop do
           Process.kill(0, pid) # should be dead already (raising Errno::ESRCH)
           Process.kill('TERM', pid) # let's try to kill it
-          logit["Tried to stop ##{pid} with SIGTERM (attempt no.#{attempt}, #{since.ago})"]
+          logit["Tried to stop ##{pid} with SIGTERM (attempt no.#{attempt}, #{since.ago}): #{cmd}"]
           sleep(0.1)
           attempt += 1
         rescue Errno::ESRCH
