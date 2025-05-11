@@ -104,7 +104,7 @@ module Kernel
         elsif log.respond_to?(mtd)
           log.__send__(mtd, msg)
         else
-          log.print("#{msg}\n")
+          log.print(msg)
         end
       end
     logit["+ #{cmd}"]
