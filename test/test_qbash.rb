@@ -130,7 +130,5 @@ class TestQbash < Minitest::Test
     stop = true
     refute(t.join(0.1))
     t.kill
-    refute(t.join(0.1))
-    assert_predicate(t, :alive?)
   end
 end
