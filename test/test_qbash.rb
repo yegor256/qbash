@@ -107,6 +107,16 @@ class TestQbash < Minitest::Test
     refute_includes(buf.to_s, "\n\n")
   end
 
+  def test_logs_multi_line_print
+    buf = Loog::Buffer.new
+    pid = nil
+    qbash('echo one; echo two', log: buf, accept: nil) do |i|
+      sleep(0.1)
+      pid = i
+    end
+    assert_equal(buf.to_s, "+ echo one; echo two\n##{pid}: one\n##{pid}: two\n")
+  end
+
   def test_with_both
     Dir.mktmpdir do |home|
       stdout, code = qbash("cat #{Shellwords.escape(File.join(home, 'foo.txt'))}", accept: nil, both: true)
