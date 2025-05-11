@@ -117,18 +117,20 @@ class TestQbash < Minitest::Test
 
   def test_exists_after_background_stop
     stop = false
+    pid = nil
     t =
       Thread.new do
-        qbash('trap "" TERM; tail -f /dev/null', accept: nil) do
+        qbash('trap "" TERM; sleep 10', accept: nil) do |id|
+          pid = id
           loop { break if stop }
         end
       end
     t.abort_on_exception = true
-    sleep(0.1)
-    stop = true
-    t.join(0.01)
-    t.kill
     sleep(0.01)
-    refute_predicate(t, :alive?)
+    stop = true
+    refute(t.join(0.1))
+    t.kill
+    refute(t.join(0.1))
+    assert_predicate(t, :alive?)
   end
 end

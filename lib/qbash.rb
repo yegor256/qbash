@@ -137,17 +137,17 @@ module Kernel
         sout.close
         watch.join(0.01)
         watch.kill if watch.alive?
-        begin
-          Process.getpgid(pid) # should be dead already (raising Errno::ESRCH)
+        attempt = 1
+        since = Time.now
+        loop do
+          Process.kill(0, pid) # should be dead already (raising Errno::ESRCH)
           Process.kill('TERM', pid) # let's try to kill it
-          begin
-            Process.getpgid(pid) # should be dead now (raising Errno::ESRCH)
-            raise "Process ##{pid} did not terminate after SIGTERM"
-          rescue Errno::ESRCH
-            logit["Process ##{pid} killed with SIGTERM"]
-          end
+          logit["Tried to stop ##{pid} with SIGTERM (attempt no.#{attempt}, #{since.ago})"]
+          sleep(0.1)
+          attempt += 1
         rescue Errno::ESRCH
           logit["Process ##{pid} exited gracefully"]
+          break
         end
       else
         consume.call
