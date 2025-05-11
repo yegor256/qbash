@@ -81,7 +81,7 @@ class TestQbash < Minitest::Test
 
   def test_kills_in_thread
     Thread.new do
-      qbash('sleep 9999') do |pid|
+      qbash('sleep 9999', accept: nil) do |pid|
         Process.kill('KILL', pid)
       end
     end.join
@@ -92,9 +92,10 @@ class TestQbash < Minitest::Test
     buf = Loog::Buffer.new
     Dir.mktmpdir do |home|
       flag = File.join(home, 'started.txt')
+      cmd = "while true; do date; touch #{Shellwords.escape(flag)}; sleep 0.001; done"
       Thread.new do
         stdout =
-          qbash("while true; do date; touch #{Shellwords.escape(flag)}; sleep 0.001; done", log: buf) do |pid|
+          qbash(cmd, log: buf, accept: nil) do |pid|
             loop { break if File.exist?(flag) }
             Process.kill('KILL', pid)
           end
@@ -122,9 +123,12 @@ class TestQbash < Minitest::Test
           loop { break if stop }
         end
       end
+    t.abort_on_exception = true
     sleep(0.1)
     stop = true
-    t.join
+    t.join(0.01)
+    t.kill
+    sleep(0.01)
     refute_predicate(t, :alive?)
   end
 end

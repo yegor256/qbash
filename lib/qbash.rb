@@ -134,13 +134,21 @@ module Kernel
         watch.abort_on_exception = true
         pid = ctrl.pid
         yield pid
-        begin
-          Process.kill('TERM', pid)
-        rescue Errno::ESRCH => e
-          logit[e.message]
-        end
         sout.close
-        watch.join
+        watch.join(1)
+        watch.kill if watch.alive?
+        begin
+          Process.getpgid(pid) # should be dead already (raising Errno::ESRCH)
+          Process.kill('TERM', pid) # let's try to kill it
+          begin
+            Process.getpgid(pid) # should be dead now (raising Errno::ESRCH)
+            raise "Process ##{pid} did not terminate after SIGTERM"
+          rescue Errno::ESRCH
+            logit["Process ##{pid} killed with SIGTERM"]
+          end
+        rescue Errno::ESRCH
+          logit["Process ##{pid} exited gracefully"]
+        end
       else
         consume.call
       end
