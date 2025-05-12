@@ -87,6 +87,13 @@ class TestQbash < Minitest::Test
     end.join
   end
 
+  def test_truly_kills
+    qbash('sleep 9876543', accept: nil) do
+      sleep(0.1)
+    end
+    refute_empty(qbash('ps ax | grep -v 9876543'))
+  end
+
   def test_logs_in_background
     stdout = nil
     buf = Loog::Buffer.new

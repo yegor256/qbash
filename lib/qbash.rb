@@ -111,7 +111,7 @@ module Kernel
     buf = ''
     e = 1
     start = Time.now
-    Open3.popen2e(env, "/bin/bash -c #{Shellwords.escape(cmd)}") do |sin, sout, ctrl|
+    Open3.popen2e(env, "exec /bin/bash -c #{Shellwords.escape(cmd)}") do |sin, sout, ctrl|
       pid = ctrl.pid
       logit["+ #{cmd} /##{pid}"]
       consume =
