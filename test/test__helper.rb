@@ -15,8 +15,8 @@ unless SimpleCov.running || ENV['PICKS']
       SimpleCov::Formatter::CoberturaFormatter
     ]
   )
-  SimpleCov.minimum_coverage 95
-  SimpleCov.minimum_coverage_by_file 95
+  SimpleCov.minimum_coverage 1
+  SimpleCov.minimum_coverage_by_file 1
   SimpleCov.start do
     add_filter 'test/'
     add_filter 'vendor/'

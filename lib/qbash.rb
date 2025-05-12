@@ -136,21 +136,24 @@ module Kernel
       if block_given?
         watch = Thread.new { consume.call }
         watch.abort_on_exception = true
-        yield pid
-        sout.close
-        watch.join(0.01)
-        watch.kill if watch.alive?
-        attempt = 1
-        since = Time.now
-        loop do
-          Process.kill(0, pid) # should be dead already (raising Errno::ESRCH)
-          Process.kill('TERM', pid) # let's try to kill it
-          logit["Tried to stop ##{pid} with SIGTERM (attempt no.#{attempt}, #{since.ago}): #{cmd}"]
-          sleep(0.1)
-          attempt += 1
-        rescue Errno::ESRCH
-          logit["Process ##{pid} reacted to SIGTERM, after #{attempt} attempts and #{since.ago}"] if attempt > 1
-          break
+        begin
+          yield pid
+        ensure
+          sout.close
+          watch.join(0.01)
+          watch.kill if watch.alive?
+          attempt = 1
+          since = Time.now
+          loop do
+            Process.kill(0, pid) # should be dead already (raising Errno::ESRCH)
+            Process.kill('TERM', pid) # let's try to kill it
+            logit["Tried to stop ##{pid} with SIGTERM (attempt no.#{attempt}, #{since.ago}): #{cmd}"]
+            sleep(0.1)
+            attempt += 1
+          rescue Errno::ESRCH
+            logit["Process ##{pid} reacted to SIGTERM, after #{attempt} attempts and #{since.ago}"] if attempt > 1
+            break
+          end
         end
       else
         consume.call

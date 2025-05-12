@@ -79,6 +79,14 @@ class TestQbash < Minitest::Test
     end
   end
 
+  def test_lets_exception_float_up
+    assert_raises(StandardError) do
+      qbash('sleep 767676', accept: nil, log: $stdout) do
+        raise 'intentional'
+      end
+    end
+  end
+
   def test_kills_in_thread
     Thread.new do
       qbash('sleep 9999', accept: nil) do |pid|
@@ -92,6 +100,14 @@ class TestQbash < Minitest::Test
       sleep(0.1)
     end
     refute_empty(qbash('ps ax | grep -v 9876543'))
+  end
+
+  def test_executes_without_sh_only_bash
+    qbash('sleep 89898989', accept: nil) do
+      refute_empty(qbash('ps ax | grep -v "sh -c exec /bin/bash -c sleep 89898989" | grep -v grep'))
+      refute_empty(qbash('ps ax | grep "sleep 89898989" | grep -v grep'))
+      sleep(0.1)
+    end
   end
 
   def test_logs_in_background
