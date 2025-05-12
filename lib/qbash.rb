@@ -86,6 +86,7 @@ module Kernel
     cmd = cmd.reject { |a| a.nil? || (a.is_a?(String) && a.empty?) }.join(' ') if cmd.is_a?(Array)
     logit =
       lambda do |msg|
+        msg = msg.gsub(/\n$/, '')
         mtd =
           case level
           when Logger::DEBUG
@@ -104,19 +105,20 @@ module Kernel
         elsif log.respond_to?(mtd)
           log.__send__(mtd, msg)
         else
-          log.print(msg)
+          log.print("#{msg}\n")
         end
       end
-    logit["+ #{cmd}"]
     buf = ''
     e = 1
     start = Time.now
     Open3.popen2e(env, "/bin/bash -c #{Shellwords.escape(cmd)}") do |sin, sout, ctrl|
+      pid = ctrl.pid
+      logit["+ #{cmd} /##{pid}"]
       consume =
         lambda do
           loop do
             break if sout.eof?
-            ln = sout.gets
+            ln = sout.gets # together with the \n at the end
             next if ln.nil?
             next if ln.empty?
             buf += ln
@@ -132,7 +134,6 @@ module Kernel
       if block_given?
         watch = Thread.new { consume.call }
         watch.abort_on_exception = true
-        pid = ctrl.pid
         yield pid
         sout.close
         watch.join(0.01)

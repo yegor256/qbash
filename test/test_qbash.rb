@@ -114,7 +114,17 @@ class TestQbash < Minitest::Test
       sleep(0.1)
       pid = i
     end
-    assert_equal(buf.to_s, "+ echo one; echo two\n##{pid}: one\n##{pid}: two\n")
+    assert_equal(buf.to_s, "+ echo one; echo two /##{pid}\n##{pid}: one\n##{pid}: two\n")
+  end
+
+  def test_logs_multi_line_to_console
+    console = FakeConsole.new
+    pid = nil
+    qbash('echo one; echo two', log: console, accept: nil) do |i|
+      sleep(0.1)
+      pid = i
+    end
+    assert_equal(console.to_s, "+ echo one; echo two /##{pid}\n##{pid}: one\n##{pid}: two\n")
   end
 
   def test_with_both
@@ -140,5 +150,19 @@ class TestQbash < Minitest::Test
     stop = true
     refute(t.join(0.1))
     t.kill
+  end
+
+  class FakeConsole
+    def initialize
+      @buf = ''
+    end
+
+    def to_s
+      @buf
+    end
+
+    def print(ln)
+      @buf += ln
+    end
   end
 end
