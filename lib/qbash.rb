@@ -75,13 +75,14 @@ module Kernel
   #
   # @param [String, Array] cmd The command to run (String or Array of arguments)
   # @param [String] stdin The +stdin+ to provide to the command
+  # @param [Array] opts List of bash options, like "--login" and "--noprofile"
   # @param [Hash] env Hash of environment variables
   # @param [Loog|IO] log Logging facility with +.debug()+ method (or +$stdout+, or nil if should go to +/dev/null+)
   # @param [Array] accept List of accepted exit codes (accepts all if the list is +nil+)
   # @param [Boolean] both If set to TRUE, the function returns an array +(stdout, code)+
   # @param [Integer] level Logging level (use +Logger::DEBUG+, +Logger::INFO+, +Logger::WARN+, or +Logger::ERROR+)
   # @return [String] Everything that was printed to the +stdout+ by the command
-  def qbash(cmd, stdin: '', env: {}, log: Loog::NULL, accept: [0], both: false, level: Logger::DEBUG)
+  def qbash(cmd, opts: [], stdin: '', env: {}, log: Loog::NULL, accept: [0], both: false, level: Logger::DEBUG)
     env.each { |k, v| raise "env[#{k}] is nil" if v.nil? }
     cmd = cmd.reject { |a| a.nil? || (a.is_a?(String) && a.empty?) }.join(' ') if cmd.is_a?(Array)
     logit =
@@ -111,7 +112,10 @@ module Kernel
     buf = ''
     e = 1
     start = Time.now
-    Open3.popen2e(env, "exec /bin/bash -c #{Shellwords.escape(cmd)}") do |sin, sout, ctrl|
+    bash = ['exec', '/bin/bash']
+    bash += opts
+    bash += ['-c', Shellwords.escape(cmd)]
+    Open3.popen2e(env, bash.join(' ')) do |sin, sout, ctrl|
       pid = ctrl.pid
       logit["+ #{cmd} /##{pid}"]
       consume =
