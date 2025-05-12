@@ -146,7 +146,7 @@ module Kernel
           sleep(0.1)
           attempt += 1
         rescue Errno::ESRCH
-          logit["Process ##{pid} gracefully reacted to SIGTERM"] if attempt > 1
+          logit["Process ##{pid} reacted to SIGTERM, after #{attempt} attempts and #{since.ago}"] if attempt > 1
           break
         end
       else
