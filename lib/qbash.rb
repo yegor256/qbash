@@ -112,9 +112,7 @@ module Kernel
     buf = ''
     e = 1
     start = Time.now
-    bash = ['exec', '/bin/bash']
-    bash += opts
-    bash += ['-c', Shellwords.escape(cmd)]
+    bash = ['exec', '/bin/bash'] + opts + ['-c', Shellwords.escape(cmd)]
     Open3.popen2e(env, bash.join(' ')) do |sin, sout, ctrl|
       pid = ctrl.pid
       logit["+ #{cmd} /##{pid}"]
