@@ -1,13 +1,13 @@
+
 .bundle/
 .DS_Store
 .idea/
 .yardoc/
 *.gem
+**/.claude/settings.local.json
 coverage/
 doc/
 node_modules/
 rdoc/
 temp/
 vendor/
-
-**/.claude/settings.local.json
