@@ -6,7 +6,7 @@
 source 'https://rubygems.org'
 gemspec
 
-gem 'cucumber', '~>9.2', require: false
+gem 'cucumber', '~>10.0', require: false
 gem 'minitest', '~>5.25', require: false
 gem 'minitest-reporters', '~>1.7', require: false
 gem 'net-ping', '~>2.0', require: false
