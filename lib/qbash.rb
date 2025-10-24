@@ -119,6 +119,7 @@ module Kernel
       consume =
         lambda do
           loop do
+            sleep 0.001
             break if sout.eof?
             ln = sout.gets # together with the \n at the end
             next if ln.nil?
