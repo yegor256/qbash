@@ -7,7 +7,6 @@ require 'backtrace'
 require 'logger'
 require 'loog'
 require 'open3'
-require 'shellwords'
 require 'tago'
 
 # Execute one bash command.
@@ -112,8 +111,8 @@ module Kernel
     buf = ''
     e = 1
     start = Time.now
-    bash = ['exec', '/bin/bash'] + opts + ['-c', Shellwords.escape(cmd)]
-    Open3.popen2e(env, bash.join(' ')) do |sin, sout, ctrl|
+    bash = ['/bin/bash'] + opts + ['-c', cmd]
+    Open3.popen2e(env, *bash) do |sin, sout, ctrl|
       pid = ctrl.pid
       logit["+ #{cmd} /##{pid}"]
       consume =
