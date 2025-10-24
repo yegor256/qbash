@@ -119,7 +119,12 @@ class TestQbash < Minitest::Test
       Thread.new do
         stdout =
           qbash(cmd, log: buf, accept: nil) do |pid|
-            loop { break if File.exist?(flag) }
+            start = Time.now
+            loop do
+              break if File.exist?(flag)
+              raise 'Timeout waiting for flag file' if Time.now - start > 5
+              sleep 0.01
+            end
             Process.kill('KILL', pid)
           end
       end.join
