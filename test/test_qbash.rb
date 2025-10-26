@@ -32,6 +32,10 @@ class TestQbash < Minitest::Test
     qbash('echo Hello world!', log: $stdout)
   end
 
+  def test_logs_non_unicode
+    qbash('printf "\xFF\xFE\x12"', log: $stdout)
+  end
+
   def test_log_to_loog
     [Logger::DEBUG, Logger::INFO, Logger::WARN, Logger::ERROR].each do |level|
       qbash('echo Hello world!', log: Loog::NULL, level:)
@@ -165,11 +169,9 @@ class TestQbash < Minitest::Test
 
   def test_exists_after_background_stop
     stop = false
-    pid = nil
     t =
       Thread.new do
-        qbash('trap "" TERM; sleep 10', accept: nil) do |id|
-          pid = id
+        qbash('trap "" TERM; sleep 10', accept: nil) do
           loop { break if stop }
         end
       end

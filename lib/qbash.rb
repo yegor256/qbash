@@ -86,7 +86,7 @@ module Kernel
     cmd = cmd.reject { |a| a.nil? || (a.is_a?(String) && a.empty?) }.join(' ') if cmd.is_a?(Array)
     logit =
       lambda do |msg|
-        msg = msg.gsub(/\n$/, '')
+        msg = msg.encode('UTF-8', invalid: :replace, undef: :replace, replace: '?').gsub(/\n$/, '')
         mtd =
           case level
           when Logger::DEBUG
