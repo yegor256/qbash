@@ -158,7 +158,7 @@ module Kernel
       else
         consume.call
       end
-      e = ctrl.value.to_i
+      e = ctrl.value.exitstatus
       if !accept.nil? && !accept.include?(e)
         raise "The command '#{cmd}' failed with exit code ##{e} in #{start.ago}\n#{buf}"
       end

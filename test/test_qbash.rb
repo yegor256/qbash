@@ -182,6 +182,22 @@ class TestQbash < Minitest::Test
     t.kill
   end
 
+  def test_success_exit_code
+    [-512, -256, 0, 256, 512].each do |c|
+      qbash("exit #{c}", accept: nil, both: true).then do |_, e|
+        assert_predicate(e, :zero?)
+      end
+    end
+  end
+
+  def test_error_exit_code
+    [-257, -255, -128, -2, -1, 1, 2, 128, 255, 257].each do |c|
+      qbash("exit #{c}", accept: nil, both: true).then do |_, e|
+        assert_equal(c % 256, e, "Incorrect process exit error code for `exit #{c}`")
+      end
+    end
+  end
+
   class FakeConsole
     def initialize
       @buf = ''
