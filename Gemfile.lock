@@ -107,7 +107,7 @@ GEM
     rake (13.3.1)
     random-port (0.7.6)
       tago (~> 0.0)
-    rdoc (6.16.1)
+    rdoc (6.17.0)
       erb
       psych (>= 4.0.0)
       tsort
@@ -148,7 +148,7 @@ GEM
       simplecov (~> 0.19)
     simplecov-html (0.13.2)
     simplecov_json_formatter (0.1.4)
-    stringio (3.1.8)
+    stringio (3.1.9)
     sys-uname (1.4.1)
       ffi (~> 1.1)
       memoist3 (~> 1.0.0)
