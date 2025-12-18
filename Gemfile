@@ -12,7 +12,7 @@ gem 'minitest-reporters', '~>1.7', require: false
 gem 'net-ping', '~>2.0', require: false
 gem 'rake', '~>13.2', require: false
 gem 'random-port', '~>0.0', require: false
-gem 'rdoc', '~>6.13', require: false
+gem 'rdoc', '~>7.0', require: false
 gem 'rubocop', '~>1.73', require: false
 gem 'rubocop-minitest', '~>0.38', require: false
 gem 'rubocop-performance', '~>1.25', require: false
