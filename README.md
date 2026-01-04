@@ -30,7 +30,7 @@ require 'qbash'
 stdout = qbash('echo "Hello, world!"', log: $stdout)
 ```
 
-If the command fails, an exception will be raised.
+If the command fails, an exception is raised.
 
 The function automatically merges `stderr` with `stdout`
 (you can't change this).
@@ -42,8 +42,8 @@ stdout = qbash('cat > $FILE', env: { 'FILE' => 'a.txt' }, stdin: 'Hello!')
 ```
 
 It's possible to configure the logging facility too, for example, with the help
-of the [loog](https://github.com/yegor256/loog) gem (the output
-will be returned _and_ printed to the logger):
+of the [loog] gem (the output
+is returned _and_ printed to the logger):
 
 ```ruby
 require 'loog'
@@ -58,10 +58,10 @@ stdout, code = qbash('cat a.txt', both: true, accept: [])
 ```
 
 Here, the `accept` param contains the list of exit codes that are "acceptable"
-and won't lead to runtime failures. When the list is empty, all exists are
-acceptable (there will be no failures ever).
+and won't lead to runtime failures. When the list is empty, all exits are
+acceptable (no failures occur).
 
-The command may be provided as an array, which automatically will be
+The command may be provided as an array, which is automatically
 converted to a string by joining all items with spaces between them.
 
 ```ruby
@@ -74,8 +74,8 @@ qbash(
 )
 ```
 
-If a block is given to `qbash`, it will run the command in background mode,
-waiting for the block to finish. Once it's finished, the command will be
+If a block is given to `qbash`, it runs the command in background mode,
+waiting for the block to finish. Once finished, the command is
 terminated via the `TERM` [signal]:
 
 ```ruby
@@ -92,8 +92,8 @@ file = '/tmp/test.txt'
 qbash("cat #{Shellwords.escape(file)}")
 ```
 
-Without such an escaping, in this example, a space inside the `file`
-will lead to an unpredictable result of the execution.
+Without such escaping, a space inside the `file` variable
+leads to an unpredictable result.
 
 If you want to stop sooner than the command finishes, use
 [timeout] gem:
@@ -105,17 +105,14 @@ Timeout.timeout(5) do
 end
 ```
 
-This command will raise `Timeout::Error` exception after five seconds
-of waiting for the `sleep` to finish.
+This raises a `Timeout::Error` exception after five seconds
+of waiting for `sleep` to finish.
 
 ## How to contribute
 
-Read
-[these guidelines](https://www.yegor256.com/2014/04/15/github-guidelines.html).
+Read [these guidelines][guidelines].
 Make sure your build is green before you contribute
-your pull request. You will need to have
-[Ruby](https://www.ruby-lang.org/en/) 3.0+ and
-[Bundler](https://bundler.io/) installed. Then:
+your pull request. You need [Ruby] 3.0+ and [Bundler] installed. Then:
 
 ```bash
 bundle update
@@ -124,8 +121,12 @@ bundle exec rake
 
 If it's clean and you don't see any error messages, submit your pull request.
 
-[shellwords]: https://ruby-doc.org/stdlib-3.0.1/libdoc/shellwords/rdoc/Shellwords.html
+[Bundler]: https://bundler.io/
+[guidelines]: https://www.yegor256.com/2014/04/15/github-guidelines.html
+[loog]: https://github.com/yegor256/loog
 [qbash]: https://rubydoc.info/github/yegor256/qbash/master/Kernel#qbash-instance_method
+[Ruby]: https://www.ruby-lang.org/en/
+[shellwords]: https://ruby-doc.org/stdlib-3.0.1/libdoc/shellwords/rdoc/Shellwords.html
 [signal]: https://en.wikipedia.org/wiki/Signal_(IPC)
-[timeout]: https://github.com/ruby/timeout
 [so-question]: https://stackoverflow.com/questions/2232/
+[timeout]: https://github.com/ruby/timeout
