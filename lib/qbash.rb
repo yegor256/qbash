@@ -81,9 +81,9 @@ module Kernel
   # @param [Boolean] both If set to TRUE, the function returns an array +(stdout, code)+
   # @param [Integer] level Logging level (use +Logger::DEBUG+, +Logger::INFO+, +Logger::WARN+, or +Logger::ERROR+)
   # @return [String] Everything that was printed to the +stdout+ by the command
-  def qbash(cmd, opts: [], stdin: '', env: {}, log: Loog::NULL, accept: [0], both: false, level: Logger::DEBUG)
+  def qbash(*cmd, opts: [], stdin: '', env: {}, log: Loog::NULL, accept: [0], both: false, level: Logger::DEBUG)
     env.each { |k, v| raise "env[#{k}] is nil" if v.nil? }
-    cmd = cmd.reject { |a| a.nil? || (a.is_a?(String) && a.empty?) }.join(' ') if cmd.is_a?(Array)
+    cmd = cmd.reject { |a| a.nil? || (a.is_a?(String) && a.empty?) }.join(' ')
     logit =
       lambda do |msg|
         msg = msg.encode('UTF-8', invalid: :replace, undef: :replace, replace: '?').gsub(/\n$/, '')

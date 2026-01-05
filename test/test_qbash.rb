@@ -28,6 +28,10 @@ class TestQbash < Minitest::Test
     assert_equal('123', qbash(['printf 1;', 'printf 2;', 'printf', 3]))
   end
 
+  def test_command_as_arguments
+    assert_equal('123', qbash('printf 1;', 'printf 2;', 'printf', 3))
+  end
+
   def test_log_to_console
     qbash('echo Hello world!', log: $stdout)
   end
