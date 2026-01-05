@@ -13,9 +13,10 @@
 
 How do you execute a new shell command from Ruby?
 There are [many ways][so-question].
-None of them offers a one-liner that would execute a command, print
-its output to the console or a logger, and then raise an exception if
-the exit code is not zero. This small gem offers exactly this one-liner.
+None of them offers a one-liner that would execute a command,
+  print its output to the console or a logger, and then raise an exception if
+  the exit code is not zero.
+This small gem offers exactly this one-liner.
 
 First, install it:
 
@@ -23,7 +24,7 @@ First, install it:
 gem install qbash
 ```
 
-Then, you can use [qbash][qbash] global function:
+Then, you can use [qbash] global function:
 
 ```ruby
 require 'qbash'
@@ -33,7 +34,7 @@ stdout = qbash('echo "Hello, world!"', log: $stdout)
 If the command fails, an exception is raised.
 
 The function automatically merges `stderr` with `stdout`
-(you can't change this).
+  (you can't change this).
 
 It's possible to provide the standard input and environment variables:
 
@@ -41,28 +42,28 @@ It's possible to provide the standard input and environment variables:
 stdout = qbash('cat > $FILE', env: { 'FILE' => 'a.txt' }, stdin: 'Hello!')
 ```
 
-It's possible to configure the logging facility too, for example, with the help
-of the [loog] gem (the output
-is returned _and_ printed to the logger):
+It's possible to configure the logging facility too, for example,
+  with the help of the [loog] gem
+  (the output is returned _and_ printed to the logger):
 
 ```ruby
 require 'loog'
 qbash('echo "Hello, world!"', log: Loog::VERBOSE)
 ```
 
-You can also make it return both stdout and exit code, with the help
-of the `both` option set to `true`:
+You can also make it return both stdout and exit code,
+  with the help of the `both` option set to `true`:
 
 ```ruby
 stdout, code = qbash('cat a.txt', both: true, accept: [])
 ```
 
 Here, the `accept` param contains the list of exit codes that are "acceptable"
-and won't lead to runtime failures. When the list is empty, all exits are
-acceptable (no failures occur).
+  and won't lead to runtime failures.
+When the list is empty, all exits are acceptable (no failures occur).
 
 The command may be provided as an array, which is automatically
-converted to a string by joining all items with spaces between them.
+  converted to a string by joining all items with spaces between them.
 
 ```ruby
 qbash(
@@ -74,9 +75,19 @@ qbash(
 )
 ```
 
+Even simpler:
+
+```ruby
+qbash(
+  'echo "Hello, world!"',
+  '&& echo "How are you?"',
+  '&& cat /etc/passwd'
+)
+```
+
 If a block is given to `qbash`, it runs the command in background mode,
-waiting for the block to finish. Once finished, the command is
-terminated via the `TERM` [signal]:
+  waiting for the block to finish.
+Once finished, the command is terminated via the `TERM` [signal]:
 
 ```ruby
 qbash('sleep 9999') do |pid|
@@ -85,7 +96,7 @@ end
 ```
 
 It is very much recommended to escape all command-line values with the help
-of the [Shellwords.escape()][shellwords] utility method, for example:
+  of the [Shellwords.escape()][shellwords] utility method, for example:
 
 ```ruby
 file = '/tmp/test.txt'
@@ -93,10 +104,9 @@ qbash("cat #{Shellwords.escape(file)}")
 ```
 
 Without such escaping, a space inside the `file` variable
-leads to an unpredictable result.
+  leads to an unpredictable result.
 
-If you want to stop sooner than the command finishes, use
-[timeout] gem:
+If you want to stop sooner than the command finishes, use [timeout] gem:
 
 ```ruby
 require 'timeout'
@@ -106,13 +116,14 @@ end
 ```
 
 This raises a `Timeout::Error` exception after five seconds
-of waiting for `sleep` to finish.
+  of waiting for `sleep` to finish.
 
 ## How to contribute
 
 Read [these guidelines][guidelines].
-Make sure your build is green before you contribute
-your pull request. You need [Ruby] 3.0+ and [Bundler] installed. Then:
+Make sure your build is green before you contribute your pull request.
+You need [Ruby] 3.0+ and [Bundler] installed.
+Then:
 
 ```bash
 bundle update
