@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: MIT
 
 require 'minitest/autorun'
+require 'securerandom'
 require 'tmpdir'
 require 'loog'
 require 'logger'
@@ -199,6 +200,34 @@ class TestQbash < Minitest::Test
       qbash("exit #{c}", accept: nil, both: true).then do |_, e|
         assert_equal(c % 256, e, "Incorrect process exit error code for `exit #{c}`")
       end
+    end
+  end
+
+  def test_runs_command_in_specified_directory
+    Dir.mktmpdir do |home|
+      real = File.realpath(home)
+      assert_equal("#{real}\n", qbash('pwd', chdir: home), "Command did not run in specified directory #{home}")
+    end
+  end
+
+  def test_creates_file_in_specified_directory
+    Dir.mktmpdir do |home|
+      name = "файл-#{SecureRandom.hex(4)}.txt"
+      qbash("echo test > #{Shellwords.escape(name)}", chdir: home)
+      assert_path_exists(File.join(home, name), "File was not created in specified directory #{home}")
+    end
+  end
+
+  def test_fails_when_chdir_directory_doesnt_exist
+    missing = "/tmp/nonexistent-#{SecureRandom.hex(8)}"
+    assert_raises(Errno::ENOENT, "Did not raise error for missing directory #{missing}") { qbash('pwd', chdir: missing) }
+  end
+
+  def test_chdir_works_with_env_variables
+    Dir.mktmpdir do |home|
+      marker = "marker-#{SecureRandom.hex(4)}"
+      result = qbash('pwd; echo $MARKER', chdir: home, env: { 'MARKER' => marker })
+      assert_includes(result, marker, 'Environment variable was not set when using chdir')
     end
   end
 

@@ -67,6 +67,14 @@ module Kernel
   #     # Process will be terminated when block exits
   #   end
   #
+  # == Changing Working Directory
+  #
+  #   # Execute command in a specific directory
+  #   files = qbash('ls -la', chdir: '/tmp')
+  #
+  #   # Useful for commands that operate on the current directory
+  #   qbash('git status', chdir: '/path/to/repo')
+  #
   # For command with multiple arguments, you can use +Shellwords.escape()+ to
   # properly escape each argument. Stderr automatically merges with stdout.
   #
@@ -80,8 +88,10 @@ module Kernel
   # @param [Array] accept List of accepted exit codes (accepts all if the list is +nil+)
   # @param [Boolean] both If set to TRUE, the function returns an array +(stdout, code)+
   # @param [Integer] level Logging level (use +Logger::DEBUG+, +Logger::INFO+, +Logger::WARN+, or +Logger::ERROR+)
+  # @param [String] chdir Directory to change to before running the command (or +nil+ to use current directory)
   # @return [String] Everything that was printed to the +stdout+ by the command
-  def qbash(*cmd, opts: [], stdin: '', env: {}, log: Loog::NULL, accept: [0], both: false, level: Logger::DEBUG)
+  def qbash(*cmd, opts: [], stdin: '', env: {}, log: Loog::NULL, accept: [0], both: false, level: Logger::DEBUG,
+            chdir: nil)
     env.each { |k, v| raise "env[#{k}] is nil" if v.nil? }
     cmd = cmd.reject { |a| a.nil? || (a.is_a?(String) && a.empty?) }.join(' ')
     logit =
@@ -112,7 +122,8 @@ module Kernel
     e = 1
     start = Time.now
     bash = ['/bin/bash'] + opts + ['-c', cmd]
-    Open3.popen2e(env, *bash) do |sin, sout, ctrl|
+    popen = chdir.nil? ? [env, *bash] : [env, *bash, { chdir: }]
+    Open3.popen2e(*popen) do |sin, sout, ctrl|
       pid = ctrl.pid
       logit["+ #{cmd} /##{pid}"]
       consume =
