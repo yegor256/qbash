@@ -245,6 +245,12 @@ class TestQbash < Minitest::Test
     assert_includes(buf.to_s, marker, 'Stderr was not captured in separate logger')
   end
 
+  def test_prints_error_to_stderr
+    buf = Loog::Buffer.new
+    qbash('cat /bad-file-name', stderr: buf, accept: nil)
+    assert_includes(buf.to_s, 'No such file or directory')
+  end
+
   def test_stderr_discarded_when_nil
     marker = "discard-#{SecureRandom.hex(4)}"
     result = qbash("echo stdout; echo #{marker} >&2", stderr: nil, accept: nil)
