@@ -162,8 +162,6 @@ module Kernel
       if block_given?
         watch = Thread.new { consume.call(sout, stdout, buf) }
         watch.abort_on_exception = true
-        errwatch = Thread.new { consume.call(serr, stderr, buf) }
-        errwatch&.abort_on_exception = true
         begin
           yield pid
         ensure
@@ -171,8 +169,6 @@ module Kernel
           serr&.close
           watch.join(0.01)
           watch.kill if watch.alive?
-          errwatch&.join(0.01)
-          errwatch&.kill if errwatch&.alive?
           attempt = 1
           since = Time.now
           loop do
@@ -187,10 +183,7 @@ module Kernel
           end
         end
       else
-        [
-          Thread.new { consume.call(sout, stdout, buf) },
-          Thread.new { consume.call(serr, stderr, buf) }
-        ].each(&:join)
+        consume.call(sout, stdout, buf)
       end
       e = ctrl.value.exitstatus
       if !accept.nil? && !accept.include?(e)

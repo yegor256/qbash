@@ -231,10 +231,10 @@ class TestQbash < Minitest::Test
     end
   end
 
-  def test_stderr_goes_to_stdout_by_default
+  def test_stderr_doesnt_go_to_stdout_by_default
     marker = "stderr-marker-#{SecureRandom.hex(4)}"
     result = qbash("echo #{marker} >&2", accept: nil)
-    assert_includes(result, marker, 'Stderr was not captured in stdout by default')
+    refute_includes(result, marker, 'Stderr was not captured in stdout by default')
   end
 
   def test_stderr_redirects_to_separate_logger
