@@ -34,16 +34,16 @@ class TestQbash < Minitest::Test
   end
 
   def test_log_to_console
-    qbash('echo Hello world!', log: $stdout)
+    qbash('echo Hello world!', stdout: $stdout)
   end
 
   def test_logs_non_unicode
-    qbash('printf "\xFF\xFE\x12"', log: $stdout)
+    qbash('printf "\xFF\xFE\x12"', stdout: $stdout)
   end
 
   def test_log_to_loog
     [Logger::DEBUG, Logger::INFO, Logger::WARN, Logger::ERROR].each do |level|
-      qbash('echo Hello world!', log: Loog::NULL, level:)
+      qbash('echo Hello world!', stdout: Loog::NULL, level:)
     end
   end
 
@@ -52,7 +52,7 @@ class TestQbash < Minitest::Test
   end
 
   def test_log_to_nil
-    assert_equal("yes\n", qbash('echo yes', log: nil))
+    assert_equal("yes\n", qbash('echo yes', stdout: nil))
   end
 
   def test_accept_zero
@@ -90,7 +90,7 @@ class TestQbash < Minitest::Test
 
   def test_lets_exception_float_up
     assert_raises(StandardError) do
-      qbash('sleep 767676', accept: nil, log: $stdout) do
+      qbash('sleep 767676', accept: nil, stdout: $stdout) do
         raise 'intentional'
       end
     end
@@ -127,7 +127,7 @@ class TestQbash < Minitest::Test
       cmd = "while true; do date; touch #{Shellwords.escape(flag)}; sleep 0.001; done"
       Thread.new do
         stdout =
-          qbash(cmd, log: buf, accept: nil) do |pid|
+          qbash(cmd, stdout: buf, accept: nil) do |pid|
             start = Time.now
             loop do
               break if File.exist?(flag)
@@ -147,7 +147,7 @@ class TestQbash < Minitest::Test
   def test_logs_multi_line_print
     buf = Loog::Buffer.new
     pid = nil
-    qbash('echo one; echo two', log: buf, accept: nil) do |i|
+    qbash('echo one; echo two', stdout: buf, accept: nil) do |i|
       sleep(0.1)
       pid = i
     end
@@ -157,7 +157,7 @@ class TestQbash < Minitest::Test
   def test_logs_multi_line_to_console
     console = FakeConsole.new
     pid = nil
-    qbash('echo one; echo two', log: console, accept: nil) do |i|
+    qbash('echo one; echo two', stdout: console, accept: nil) do |i|
       sleep(0.1)
       pid = i
     end
@@ -229,6 +229,44 @@ class TestQbash < Minitest::Test
       result = qbash('pwd; echo $MARKER', chdir: home, env: { 'MARKER' => marker })
       assert_includes(result, marker, 'Environment variable was not set when using chdir')
     end
+  end
+
+  def test_stderr_goes_to_stdout_by_default
+    marker = "stderr-marker-#{SecureRandom.hex(4)}"
+    result = qbash("echo #{marker} >&2", accept: nil)
+    assert_includes(result, marker, 'Stderr was not captured in stdout by default')
+  end
+
+  def test_stderr_redirects_to_separate_logger
+    marker = "отметка-#{SecureRandom.hex(4)}"
+    buf = Loog::Buffer.new
+    result = qbash("echo #{marker} >&2", stderr: buf, accept: nil)
+    refute_includes(result, marker, 'Stderr should not appear in stdout when redirected')
+    assert_includes(buf.to_s, marker, 'Stderr was not captured in separate logger')
+  end
+
+  def test_stderr_discarded_when_nil
+    marker = "discard-#{SecureRandom.hex(4)}"
+    result = qbash("echo stdout; echo #{marker} >&2", stderr: nil, accept: nil)
+    refute_includes(result, marker, 'Stderr should be discarded when stderr is nil')
+    assert_includes(result, 'stdout', 'Stdout should still be captured')
+  end
+
+  def test_stderr_with_both_streams_producing_output
+    out = "out-#{SecureRandom.hex(4)}"
+    err = "err-#{SecureRandom.hex(4)}"
+    buf = Loog::Buffer.new
+    result = qbash("echo #{out}; echo #{err} >&2", stderr: buf, accept: nil)
+    assert_includes(result, out, 'Stdout was not captured')
+    refute_includes(result, err, 'Stderr should not appear in stdout')
+    assert_includes(buf.to_s, err, 'Stderr was not captured in separate logger')
+  end
+
+  def test_stderr_to_console
+    console = FakeConsole.new
+    marker = "console-#{SecureRandom.hex(4)}"
+    qbash("echo #{marker} >&2", stderr: console, accept: nil)
+    assert_includes(console.to_s, marker, 'Stderr was not printed to console')
   end
 
   class FakeConsole

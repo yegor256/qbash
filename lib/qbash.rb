@@ -51,12 +51,12 @@ module Kernel
   #
   # == Logging
   #
-  #   # Enable detailed logging to stdout
-  #   qbash('ls -la', log: $stdout)
+  #   # Enable detailed logging to console
+  #   qbash('ls -la', stdout: $stdout)
   #
   #   # Use custom logger with specific level
   #   logger = Logger.new($stdout)
-  #   qbash('make all', log: logger, level: Logger::INFO)
+  #   qbash('make all', stdout: logger, level: Logger::INFO)
   #
   # == Process Control
   #
@@ -76,7 +76,21 @@ module Kernel
   #   qbash('git status', chdir: '/path/to/repo')
   #
   # For command with multiple arguments, you can use +Shellwords.escape()+ to
-  # properly escape each argument. Stderr automatically merges with stdout.
+  # properly escape each argument.
+  #
+  # == Stderr Handling
+  #
+  # By default, stderr merges with stdout. You can redirect it elsewhere:
+  #
+  #   # Merge stderr with stdout (default)
+  #   output = qbash('cmd', stderr: :stdout)
+  #
+  #   # Redirect stderr to a separate logger
+  #   err_log = Loog::Buffer.new
+  #   output = qbash('cmd', stderr: err_log)
+  #
+  #   # Discard stderr completely
+  #   output = qbash('cmd', stderr: nil)
   #
   # Read this <a href="https://github.com/yegor256/qbash">README</a> file for more details.
   #
@@ -84,90 +98,99 @@ module Kernel
   # @param [String] stdin The +stdin+ to provide to the command
   # @param [Array] opts List of bash options, like "--login" and "--noprofile"
   # @param [Hash] env Hash of environment variables
-  # @param [Loog|IO] log Logging facility with +.debug()+ method (or +$stdout+, or nil if should go to +/dev/null+)
+  # @param [Loog|IO] stdout Logging facility with +.debug()+ method (or +$stdout+, or nil if should go to +/dev/null+)
+  # @param [Symbol|Loog|IO] stderr Where to send stderr: +:stdout+ merges with stdout (default), +nil+ discards, or a logger/IO
   # @param [Array] accept List of accepted exit codes (accepts all if the list is +nil+)
   # @param [Boolean] both If set to TRUE, the function returns an array +(stdout, code)+
   # @param [Integer] level Logging level (use +Logger::DEBUG+, +Logger::INFO+, +Logger::WARN+, or +Logger::ERROR+)
   # @param [String] chdir Directory to change to before running the command (or +nil+ to use current directory)
   # @return [String] Everything that was printed to the +stdout+ by the command
-  def qbash(*cmd, opts: [], stdin: '', env: {}, log: Loog::NULL, accept: [0], both: false, level: Logger::DEBUG,
-            chdir: nil)
+  def qbash(*cmd, opts: [], stdin: '', env: {}, stdout: Loog::NULL, stderr: nil, accept: [0], both: false,
+            level: Logger::DEBUG, chdir: nil)
+    stderr = stdout unless stderr
     env.each { |k, v| raise "env[#{k}] is nil" if v.nil? }
     cmd = cmd.reject { |a| a.nil? || (a.is_a?(String) && a.empty?) }.join(' ')
-    logit =
-      lambda do |msg|
+    mtd =
+      case level
+      when Logger::DEBUG
+        :debug
+      when Logger::INFO
+        :info
+      when Logger::WARN
+        :warn
+      when Logger::ERROR
+        :error
+      else
+        raise "Unknown log level #{level}"
+      end
+    printer =
+      lambda do |target, msg|
         msg = msg.encode('UTF-8', invalid: :replace, undef: :replace, replace: '?').gsub(/\n$/, '')
-        mtd =
-          case level
-          when Logger::DEBUG
-            :debug
-          when Logger::INFO
-            :info
-          when Logger::WARN
-            :warn
-          when Logger::ERROR
-            :error
-          else
-            raise "Unknown log level #{level}"
-          end
-        if log.nil?
+        if target.nil?
           # nothing to print
-        elsif log.respond_to?(mtd)
-          log.__send__(mtd, msg)
+        elsif target.respond_to?(mtd)
+          target.__send__(mtd, msg)
         else
-          log.print("#{msg}\n")
+          target.print("#{msg}\n")
         end
       end
-    buf = ''
+    buf = +''
     e = 1
     start = Time.now
     bash = ['/bin/bash'] + opts + ['-c', cmd]
     popen = chdir.nil? ? [env, *bash] : [env, *bash, { chdir: }]
-    Open3.popen2e(*popen) do |sin, sout, ctrl|
+    Open3.send(:popen3, *popen) do |sin, sout, serr, ctrl|
       pid = ctrl.pid
-      logit["+ #{cmd} /##{pid}"]
+      printer[stderr, "+ #{cmd} /##{pid}"]
       consume =
-        lambda do
+        lambda do |stream, target, buffer|
           loop do
             sleep 0.001
-            break if sout.closed? || sout.eof?
-            ln = sout.gets # together with the \n at the end
+            break if stream.closed? || stream.eof?
+            ln = stream.gets
             next if ln.nil?
             next if ln.empty?
-            buf += ln
-            ln = "##{ctrl.pid}: #{ln}"
-            logit[ln]
-          rescue IOError => e
-            logit[e.message]
+            buffer << ln if buffer
+            printer[target, "##{pid}: #{ln}"]
+          rescue IOError => ex
+            printer[stderr, ex.message]
             break
           end
         end
       sin.write(stdin)
       sin.close
       if block_given?
-        watch = Thread.new { consume.call }
+        watch = Thread.new { consume.call(sout, stdout, buf) }
         watch.abort_on_exception = true
+        errwatch = Thread.new { consume.call(serr, stderr, buf) }
+        errwatch&.abort_on_exception = true
         begin
           yield pid
         ensure
           sout.close
+          serr&.close
           watch.join(0.01)
           watch.kill if watch.alive?
+          errwatch&.join(0.01)
+          errwatch&.kill if errwatch&.alive?
           attempt = 1
           since = Time.now
           loop do
-            Process.kill(0, pid) # should be dead already (raising Errno::ESRCH)
-            Process.kill('TERM', pid) # let's try to kill it
-            logit["Tried to stop ##{pid} with SIGTERM (attempt no.#{attempt}, #{since.ago}): #{cmd}"]
+            Process.kill(0, pid)
+            Process.kill('TERM', pid)
+            printer[stderr, "Tried to stop ##{pid} with SIGTERM (attempt no.#{attempt}, #{since.ago}): #{cmd}"]
             sleep(0.1)
             attempt += 1
           rescue Errno::ESRCH
-            logit["Process ##{pid} reacted to SIGTERM, after #{attempt} attempts and #{since.ago}"] if attempt > 1
+            printer[stderr, "Process ##{pid} reacted to SIGTERM, after #{attempt} attempts and #{since.ago}"] if attempt > 1
             break
           end
         end
       else
-        consume.call
+        [
+          Thread.new { consume.call(sout, stdout, buf) },
+          Thread.new { consume.call(serr, stderr, buf) }
+        ].each(&:join)
       end
       e = ctrl.value.exitstatus
       if !accept.nil? && !accept.include?(e)
