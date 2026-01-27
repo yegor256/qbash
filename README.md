@@ -33,8 +33,17 @@ stdout = qbash('echo "Hello, world!"', log: $stdout)
 
 If the command fails, an exception is raised.
 
-The function automatically merges `stderr` with `stdout`
-  (you can't change this).
+By default, `stderr` merges with the `stdout` logger.
+You can redirect it elsewhere:
+
+```ruby
+# Redirect stderr to a separate logger
+err = Loog::Buffer.new
+qbash('cmd', stderr: err)
+
+# Discard stderr completely
+qbash('cmd', stderr: nil)
+```
 
 It's possible to provide the standard input and environment variables:
 
