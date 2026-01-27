@@ -28,7 +28,7 @@ Then, you can use [qbash] global function:
 
 ```ruby
 require 'qbash'
-stdout = qbash('echo "Hello, world!"', log: $stdout)
+stdout = qbash('echo "Hello, world!"')
 ```
 
 If the command fails, an exception is raised.
@@ -38,8 +38,9 @@ You can redirect it elsewhere:
 
 ```ruby
 # Redirect stderr to a separate logger
+out = Loog::Buffer.new
 err = Loog::Buffer.new
-qbash('cmd', stderr: err)
+qbash('cmd', stdout: out, stderr: err)
 
 # Discard stderr completely
 qbash('cmd', stderr: nil)
@@ -57,7 +58,7 @@ It's possible to configure the logging facility too, for example,
 
 ```ruby
 require 'loog'
-qbash('echo "Hello, world!"', log: Loog::VERBOSE)
+qbash('echo "Hello, world!"', stdout: Loog::VERBOSE)
 ```
 
 You can also make it return both stdout and exit code,
