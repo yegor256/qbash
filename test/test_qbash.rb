@@ -164,11 +164,11 @@ class TestQbash < Minitest::Test
     assert_equal(console.to_s, "+ echo one; echo two /##{pid}\n##{pid}: one\n##{pid}: two\n")
   end
 
-  def test_with_both
+  def test_with_both_and_empty_stdout
     Dir.mktmpdir do |home|
       stdout, code = qbash("cat #{Shellwords.escape(File.join(home, 'foo.txt'))}", accept: nil, both: true)
       assert_predicate(code, :positive?)
-      refute_empty(stdout)
+      assert_empty(stdout)
     end
   end
 

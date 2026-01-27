@@ -99,7 +99,7 @@ module Kernel
   # @param [Array] opts List of bash options, like "--login" and "--noprofile"
   # @param [Hash] env Hash of environment variables
   # @param [Loog|IO] stdout Logging facility with +.debug()+ method (or +$stdout+, or nil if should go to +/dev/null+)
-  # @param [Symbol|Loog|IO] stderr Where to send stderr: +:stdout+ merges with stdout (default), +nil+ discards, or a logger/IO
+  # @param [Loog|IO] stderr Where to send stderr
   # @param [Array] accept List of accepted exit codes (accepts all if the list is +nil+)
   # @param [Boolean] both If set to TRUE, the function returns an array +(stdout, code)+
   # @param [Integer] level Logging level (use +Logger::DEBUG+, +Logger::INFO+, +Logger::WARN+, or +Logger::ERROR+)
@@ -107,7 +107,7 @@ module Kernel
   # @return [String] Everything that was printed to the +stdout+ by the command
   def qbash(*cmd, opts: [], stdin: '', env: {}, stdout: Loog::NULL, stderr: nil, accept: [0], both: false,
             level: Logger::DEBUG, chdir: nil)
-    stderr = stdout unless stderr
+    stderr ||= stdout
     env.each { |k, v| raise "env[#{k}] is nil" if v.nil? }
     cmd = cmd.reject { |a| a.nil? || (a.is_a?(String) && a.empty?) }.join(' ')
     mtd =
@@ -152,8 +152,8 @@ module Kernel
             next if ln.empty?
             buffer << ln if buffer
             printer[target, "##{pid}: #{ln}"]
-          rescue IOError => ex
-            printer[stderr, ex.message]
+          rescue IOError => e
+            printer[stderr, e.message]
             break
           end
         end
@@ -178,7 +178,10 @@ module Kernel
             sleep(0.1)
             attempt += 1
           rescue Errno::ESRCH
-            printer[stderr, "Process ##{pid} reacted to SIGTERM, after #{attempt} attempts and #{since.ago}"] if attempt > 1
+            if attempt > 1
+              printer[stderr,
+                      "Process ##{pid} reacted to SIGTERM, after #{attempt} attempts and #{since.ago}"]
+            end
             break
           end
         end
