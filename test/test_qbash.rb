@@ -82,6 +82,11 @@ class TestQbash < Minitest::Test
     assert_raises(StandardError) { qbash('echo hi', env: { a: nil }) }
   end
 
+  def test_converts_integer_env_to_string
+    value = rand(1_000_000)
+    assert_equal("#{value}\n", qbash('echo $PORT', env: { 'PORT' => value }), 'Integer env value was not converted')
+  end
+
   def test_ignore_errors
     Dir.mktmpdir do |home|
       qbash("cat #{Shellwords.escape(File.join(home, 'b.txt'))}", accept: nil)

@@ -109,6 +109,7 @@ module Kernel
             level: Logger::DEBUG, chdir: nil)
     stderr ||= stdout
     env.each { |k, v| raise "env[#{k}] is nil" if v.nil? }
+    env = env.transform_values(&:to_s)
     cmd = cmd.reject { |a| a.nil? || (a.is_a?(String) && a.empty?) }.join(' ')
     mtd =
       case level
