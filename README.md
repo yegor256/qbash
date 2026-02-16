@@ -128,6 +128,13 @@ end
 This raises a `Timeout::Error` exception after five seconds
   of waiting for `sleep` to finish.
 
+By default, `qbash` runs commands through `/bin/bash`.
+To run commands through the system shell instead (useful on Windows), use:
+
+```ruby
+qbash('dir C:\\', raw: true)
+```
+
 ## How to contribute
 
 Read [these guidelines][guidelines].

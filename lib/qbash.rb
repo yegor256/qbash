@@ -75,6 +75,12 @@ module Kernel
   #   # Useful for commands that operate on the current directory
   #   qbash('git status', chdir: '/path/to/repo')
   #
+  # == Raw Mode (System Shell)
+  #
+  #   # Run command through the system shell instead of /bin/bash
+  #   # Useful on Windows where /bin/bash is not available
+  #   qbash('dir C:\\', raw: true)
+  #
   # For command with multiple arguments, you can use +Shellwords.escape()+ to
   # properly escape each argument.
   #
@@ -104,9 +110,10 @@ module Kernel
   # @param [Boolean] both If set to TRUE, the function returns an array +(stdout, code)+
   # @param [Integer] level Logging level (use +Logger::DEBUG+, +Logger::INFO+, +Logger::WARN+, or +Logger::ERROR+)
   # @param [String] chdir Directory to change to before running the command (or +nil+ to use current directory)
+  # @param [Boolean] raw If +true+, run the command via the system shell instead of +/bin/bash+
   # @return [String] Everything that was printed to the +stdout+ by the command
   def qbash(*cmd, opts: [], stdin: '', env: {}, stdout: Loog::NULL, stderr: nil, accept: [0], both: false,
-            level: Logger::DEBUG, chdir: nil)
+            level: Logger::DEBUG, chdir: nil, raw: false)
     stderr ||= stdout
     env.each { |k, v| raise "env[#{k}] is nil" if v.nil? }
     env = env.transform_values(&:to_s)
@@ -138,8 +145,13 @@ module Kernel
     buf = +''
     e = 1
     start = Time.now
-    bash = ['/bin/bash'] + opts + ['-c', cmd]
-    popen = chdir.nil? ? [env, *bash] : [env, *bash, { chdir: }]
+    popen =
+      if raw
+        chdir.nil? ? [env, cmd] : [env, cmd, { chdir: }]
+      else
+        bash = ['/bin/bash'] + opts + ['-c', cmd]
+        chdir.nil? ? [env, *bash] : [env, *bash, { chdir: }]
+      end
     Open3.send(:popen3, *popen) do |sin, sout, serr, ctrl|
       pid = ctrl.pid
       printer[stderr, "+ #{cmd} /##{pid}"]

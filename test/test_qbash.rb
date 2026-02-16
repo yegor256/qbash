@@ -286,6 +286,38 @@ class TestQbash < Minitest::Test
     assert_includes(console.to_s, marker, 'Stderr was not printed to console')
   end
 
+  def test_runs_command_in_raw_mode
+    marker = "raw-маркер-#{SecureRandom.hex(4)}"
+    result = qbash("echo #{marker}", raw: true)
+    assert_includes(result, marker, 'Command did not execute in raw mode')
+  end
+
+  def test_raw_mode_with_env_variables
+    marker = "env-#{SecureRandom.hex(4)}"
+    result = qbash('echo $RAWVAR', raw: true, env: { 'RAWVAR' => marker })
+    assert_includes(result, marker, 'Environment variable was not set in raw mode')
+  end
+
+  def test_raw_mode_with_chdir
+    Dir.mktmpdir do |home|
+      real = File.realpath(home)
+      result = qbash('pwd', raw: true, chdir: home)
+      assert_includes(result, real, 'Raw mode did not respect chdir option')
+    end
+  end
+
+  def test_raw_mode_with_stdin
+    result = qbash('cat', raw: true, stdin: "привет-#{SecureRandom.hex(4)}")
+    refute_empty(result, 'Raw mode did not handle stdin')
+  end
+
+  def test_raw_mode_returns_both_stdout_and_code
+    marker = "both-#{SecureRandom.hex(4)}"
+    stdout, code = qbash("echo #{marker}", raw: true, both: true)
+    assert_includes(stdout, marker, 'Raw mode did not return stdout with both option')
+    assert_equal(0, code, 'Raw mode did not return exit code zero')
+  end
+
   class FakeConsole
     def initialize
       @buf = ''
