@@ -16,6 +16,8 @@ plugins:
   - rubocop-rake
 Minitest/EmptyLineBeforeAssertionMethods:
   Enabled: false
+Metrics/ModuleLength:
+  Enabled: false
 Metrics/ParameterLists:
   Enabled: false
 Style/GlobalVars:

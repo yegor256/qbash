@@ -5,6 +5,7 @@
 
 require 'minitest/autorun'
 require 'securerandom'
+require 'timeout'
 require 'tmpdir'
 require 'loog'
 require 'logger'
@@ -316,6 +317,37 @@ class TestQbash < Minitest::Test
     stdout, code = qbash("echo #{marker}", raw: true, both: true)
     assert_includes(stdout, marker, 'Raw mode did not return stdout with both option')
     assert_equal(0, code, 'Raw mode did not return exit code zero')
+  end
+
+  def test_kills_child_when_parent_receives_sigterm
+    seconds = rand(100_000..999_999)
+    Dir.mktmpdir do |home|
+      pidfile = File.join(home, 'child.pid')
+      script = File.join(home, 'run.rb')
+      File.write(script, <<~RUBY)
+        require '#{File.expand_path('../lib/qbash', __dir__)}'
+        qbash('echo $$ > #{pidfile}; exec sleep #{seconds}', accept: nil)
+      RUBY
+      parent = spawn(RbConfig.ruby, script)
+      Timeout.timeout(5) { sleep 0.05 until File.exist?(pidfile) && !File.read(pidfile).strip.empty? }
+      child = File.read(pidfile).strip.to_i
+      Process.kill(0, child)
+      Process.kill('TERM', parent)
+      begin
+        Timeout.timeout(3) { Process.wait(parent) }
+      rescue StandardError
+        Process.kill('KILL', parent)
+      end
+      sleep 0.1
+      alive =
+        begin
+          Process.kill(0, child)
+        rescue StandardError
+          false
+        end
+      Process.kill('KILL', child) if alive
+      refute(alive, 'Child process was not killed when parent received SIGTERM')
+    end
   end
 
   class FakeConsole

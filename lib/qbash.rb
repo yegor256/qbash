@@ -201,8 +201,17 @@ module Kernel
       else
         thread = Thread.new { consume.call(serr, stderr, nil) }
         thread.abort_on_exception = true
-        consume.call(sout, stdout, buf)
-        thread.join
+        begin
+          consume.call(sout, stdout, buf)
+          thread.join
+        rescue SignalException => e
+          begin
+            Process.kill(e.signo, pid)
+          rescue StandardError
+            nil
+          end
+          raise
+        end
       end
       e = ctrl.value.exitstatus
       if !accept.nil? && !accept.include?(e)
