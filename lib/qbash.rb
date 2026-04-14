@@ -213,9 +213,11 @@ module Kernel
           raise
         end
       end
-      e = ctrl.value.exitstatus
+      status = ctrl.value
+      e = status.exitstatus || (status.termsig ? 128 + status.termsig : nil)
       if !accept.nil? && !accept.include?(e)
-        raise "The command '#{cmd}' failed with exit code ##{e} in #{start.ago}\n#{buf}"
+        reason = status.signaled? ? "killed by signal #{status.termsig}" : "exit code ##{e}"
+        raise "The command '#{cmd}' failed (#{reason}) in #{start.ago}\n#{buf}"
       end
     end
     return [buf, e] if both

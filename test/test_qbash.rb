@@ -73,6 +73,16 @@ class TestQbash < Minitest::Test
     assert_equal("'hi'\n", qbash("echo \"'hi'\""))
   end
 
+  def test_signal_termination_raises_clear_error
+    e = assert_raises(StandardError) { qbash("bash -c 'kill -PIPE $$'") }
+    refute_match(/undefined method/, e.message, 'must not raise NoMethodError on signal termination')
+    assert_match(/killed by signal/, e.message, 'must mention signal termination')
+  end
+
+  def test_signal_termination_accepted_via_shell_code
+    qbash("bash -c 'kill -TERM $$'", accept: [128 + 15])
+  end
+
   def test_with_error
     Dir.mktmpdir do |home|
       assert_raises(StandardError) { qbash("cat #{Shellwords.escape(File.join(home, 'b.txt'))}") }
