@@ -214,6 +214,7 @@ module Kernel
         end
       end
       status = ctrl.value
+      raise "The command '#{cmd}' wait status is unavailable in #{start.ago}\n#{buf}" if status.nil?
       e = status.exitstatus || (status.termsig ? 128 + status.termsig : nil)
       if !accept.nil? && !accept.include?(e)
         reason = status.signaled? ? "killed by signal #{status.termsig}" : "exit code ##{e}"

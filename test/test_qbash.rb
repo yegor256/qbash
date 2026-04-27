@@ -79,6 +79,24 @@ class TestQbash < Minitest::Test
     assert_match(/killed by signal/, e.message, 'must mention signal termination')
   end
 
+  def test_fails_clearly_when_wait_status_is_nil
+    original = Open3.method(:popen3)
+    Open3.define_singleton_method(:popen3) do |*args, &block|
+      original.call(*args) do |sin, sout, serr, ctrl|
+        fake = Object.new
+        fake.define_singleton_method(:pid) { ctrl.pid }
+        fake.define_singleton_method(:value) { nil }
+        block.call(sin, sout, serr, fake)
+      end
+    end
+    begin
+      e = assert_raises(StandardError) { qbash('echo hi') }
+      refute_match(/undefined method/, e.message, 'must not raise NoMethodError when wait status is unavailable')
+    ensure
+      Open3.define_singleton_method(:popen3, original)
+    end
+  end
+
   def test_signal_termination_accepted_via_shell_code
     qbash("bash -c 'kill -TERM $$'", accept: [128 + 15])
   end
