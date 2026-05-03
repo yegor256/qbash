@@ -81,7 +81,7 @@ module Kernel
   #   # Useful on Windows where /bin/bash is not available
   #   qbash('dir C:\\', raw: true)
   #
-  # For command with multiple arguments, you can use +Shellwords.escape()+ to
+  # For commands with multiple arguments, you can use +Shellwords.escape()+ to
   # properly escape each argument.
   #
   # == Stderr Handling
