@@ -113,10 +113,14 @@ module Kernel
   # @param [String] chdir Directory to change to before running the command (or +nil+ to use current directory)
   # @param [Boolean] raw If +true+, run the command via the system shell instead of +/bin/bash+
   # @return [String] Everything that was printed to the +stdout+ by the command
-  def qbash(*cmd, opts: [], stdin: '', env: {}, stdout: Loog::NULL, stderr: nil, accept: [0], both: false,
-            level: Logger::DEBUG, chdir: nil, raw: false)
+  def qbash(
+    *cmd, opts: [], stdin: '', env: {},
+    stdout: Loog::NULL, stderr: nil,
+    accept: [0], both: false,
+    level: Logger::DEBUG, chdir: nil, raw: false
+  )
     stderr ||= stdout
-    env.each { |k, v| raise "env[#{k}] is nil" if v.nil? }
+    env.each { |k, v| raise(ArgumentError, "env[#{k}] is nil") if v.nil? }
     env = env.transform_values(&:to_s)
     cmd = cmd.reject { |a| a.nil? || (a.is_a?(String) && a.empty?) }.join(' ')
     mtd =
@@ -130,17 +134,17 @@ module Kernel
       when Logger::ERROR
         :error
       else
-        raise "Unknown log level #{level}"
+        raise(ArgumentError, "Unknown log level #{level}")
       end
     printer =
       lambda do |target, msg|
         msg = msg.encode('UTF-8', invalid: :replace, undef: :replace, replace: '?').gsub(/\n$/, '')
-        if target.nil?
-          # nothing to print
-        elsif target.respond_to?(mtd)
-          target.__send__(mtd, msg)
-        else
-          target.print("#{msg}\n")
+        unless target.nil?
+          if target.respond_to?(mtd)
+            target.__send__(mtd, msg)
+          else
+            target.print("#{msg}\n")
+          end
         end
       end
     buf = +''
@@ -153,13 +157,13 @@ module Kernel
         bash = ['/bin/bash'] + opts + ['-c', cmd]
         chdir.nil? ? [env, *bash] : [env, *bash, { chdir: }]
       end
-    Open3.send(:popen3, *popen) do |sin, sout, serr, ctrl|
+    Open3.__send__(:popen3, *popen) do |sin, sout, serr, ctrl|
       pid = ctrl.pid
       printer[stderr, "+ #{cmd} /##{pid}"]
       consume =
         lambda do |stream, target, buffer|
           loop do
-            sleep 0.001
+            sleep(0.001)
             break if stream.closed? || stream.eof?
             ln = stream.gets
             next if ln.nil?
@@ -177,7 +181,7 @@ module Kernel
         watch = Thread.new { consume.call(sout, stdout, buf) }
         watch.abort_on_exception = true
         begin
-          yield pid
+          yield(pid)
         ensure
           sout.close
           serr&.close
@@ -193,8 +197,7 @@ module Kernel
             attempt += 1
           rescue Errno::ESRCH
             if attempt > 1
-              printer[stderr,
-                      "Process ##{pid} reacted to SIGTERM, after #{attempt} attempts and #{since.ago}"]
+              printer[stderr, "Process ##{pid} reacted to SIGTERM, after #{attempt} attempts and #{since.ago}"]
             end
             break
           end
@@ -215,11 +218,24 @@ module Kernel
         end
       end
       status = ctrl.value
-      raise "The command '#{cmd}' wait status is unavailable in #{start.ago}\n#{buf}" if status.nil?
+      if status.nil?
+        raise(
+          StandardError,
+          "The command '#{cmd}' wait status is unavailable in #{start.ago}\n#{buf}"
+        )
+      end
       e = status.exitstatus || (status.termsig ? 128 + status.termsig : nil)
       if !accept.nil? && !accept.include?(e)
-        reason = status.signaled? ? "killed by signal #{status.termsig}" : "exit code ##{e}"
-        raise "The command '#{cmd}' failed (#{reason}) in #{start.ago}\n#{buf}"
+        raise(
+          StandardError,
+          "The command '#{cmd}' failed (#{
+            if status.signaled?
+              "killed by signal #{status.termsig}"
+            else
+              "exit code ##{e}"
+            end
+          }) in #{start.ago}\n#{buf}"
+        )
       end
     end
     return [buf, e] if both

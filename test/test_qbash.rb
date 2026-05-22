@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
+require 'logger'
+require 'loog'
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
 require 'minitest/autorun'
 require 'securerandom'
+require 'shellwords'
 require 'timeout'
 require 'tmpdir'
-require 'loog'
-require 'logger'
-require 'shellwords'
-require_relative 'test__helper'
 require_relative '../lib/qbash'
+require_relative 'test__helper'
 
 # Test.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
@@ -90,8 +90,13 @@ class TestQbash < Minitest::Test
       end
     end
     begin
-      e = assert_raises(StandardError) { qbash('echo hi') }
-      refute_match(/undefined method/, e.message, 'must not raise NoMethodError when wait status is unavailable')
+      refute_match(
+        /undefined method/,
+        assert_raises(StandardError) do
+          qbash('echo hi')
+        end.message,
+        'must not raise NoMethodError when wait status is unavailable'
+      )
     ensure
       Open3.define_singleton_method(:popen3, original)
     end
@@ -125,7 +130,7 @@ class TestQbash < Minitest::Test
   def test_lets_exception_float_up
     assert_raises(StandardError) do
       qbash('sleep 767676', accept: nil, stdout: $stdout) do
-        raise 'intentional'
+        raise(StandardError, 'intentional')
       end
     end
   end
@@ -165,8 +170,8 @@ class TestQbash < Minitest::Test
             start = Time.now
             loop do
               break if File.exist?(flag)
-              raise 'Timeout waiting for flag file' if Time.now - start > 5
-              sleep 0.01
+              raise(StandardError, 'Timeout waiting for flag file') if Time.now - start > 5
+              sleep(0.01)
             end
             Process.kill('KILL', pid)
           end
@@ -239,8 +244,10 @@ class TestQbash < Minitest::Test
 
   def test_runs_command_in_specified_directory
     Dir.mktmpdir do |home|
-      real = File.realpath(home)
-      assert_equal("#{real}\n", qbash('pwd', chdir: home), "Command did not run in specified directory #{home}")
+      assert_equal(
+        "#{File.realpath(home)}\n", qbash('pwd', chdir: home),
+        "Command did not run in specified directory #{home}"
+      )
     end
   end
 
@@ -260,22 +267,25 @@ class TestQbash < Minitest::Test
   def test_chdir_works_with_env_variables
     Dir.mktmpdir do |home|
       marker = "marker-#{SecureRandom.hex(4)}"
-      result = qbash('pwd; echo $MARKER', chdir: home, env: { 'MARKER' => marker })
-      assert_includes(result, marker, 'Environment variable was not set when using chdir')
+      assert_includes(
+        qbash('pwd; echo $MARKER', chdir: home, env: { 'MARKER' => marker }), marker,
+        'Environment variable was not set when using chdir'
+      )
     end
   end
 
   def test_stderr_doesnt_go_to_stdout_by_default
     marker = "stderr-marker-#{SecureRandom.hex(4)}"
-    result = qbash("echo #{marker} >&2", accept: nil)
-    refute_includes(result, marker, 'Stderr was not captured in stdout by default')
+    refute_includes(qbash("echo #{marker} >&2", accept: nil), marker, 'Stderr was not captured in stdout by default')
   end
 
   def test_stderr_redirects_to_separate_logger
     marker = "отметка-#{SecureRandom.hex(4)}"
     buf = Loog::Buffer.new
-    result = qbash("echo #{marker} >&2", stderr: buf, accept: nil)
-    refute_includes(result, marker, 'Stderr should not appear in stdout when redirected')
+    refute_includes(
+      qbash("echo #{marker} >&2", stderr: buf, accept: nil), marker,
+      'Stderr should not appear in stdout when redirected'
+    )
     assert_includes(buf.to_s, marker, 'Stderr was not captured in separate logger')
   end
 
@@ -317,27 +327,28 @@ class TestQbash < Minitest::Test
 
   def test_runs_command_in_raw_mode
     marker = "raw-маркер-#{SecureRandom.hex(4)}"
-    result = qbash("echo #{marker}", raw: true)
-    assert_includes(result, marker, 'Command did not execute in raw mode')
+    assert_includes(qbash("echo #{marker}", raw: true), marker, 'Command did not execute in raw mode')
   end
 
   def test_raw_mode_with_env_variables
     marker = "env-#{SecureRandom.hex(4)}"
-    result = qbash('echo $RAWVAR', raw: true, env: { 'RAWVAR' => marker })
-    assert_includes(result, marker, 'Environment variable was not set in raw mode')
+    assert_includes(
+      qbash('echo $RAWVAR', raw: true, env: { 'RAWVAR' => marker }), marker,
+      'Environment variable was not set in raw mode'
+    )
   end
 
   def test_raw_mode_with_chdir
     Dir.mktmpdir do |home|
-      real = File.realpath(home)
-      result = qbash('pwd', raw: true, chdir: home)
-      assert_includes(result, real, 'Raw mode did not respect chdir option')
+      assert_includes(
+        qbash('pwd', raw: true, chdir: home), File.realpath(home),
+        'Raw mode did not respect chdir option'
+      )
     end
   end
 
   def test_raw_mode_with_stdin
-    result = qbash('cat', raw: true, stdin: "привет-#{SecureRandom.hex(4)}")
-    refute_empty(result, 'Raw mode did not handle stdin')
+    refute_empty(qbash('cat', raw: true, stdin: "привет-#{SecureRandom.hex(4)}"), 'Raw mode did not handle stdin')
   end
 
   def test_raw_mode_returns_both_stdout_and_code
@@ -357,8 +368,8 @@ class TestQbash < Minitest::Test
         qbash('echo $$ > #{pidfile}; exec sleep #{seconds}', accept: nil)
       RUBY
       parent = spawn(RbConfig.ruby, script)
-      Timeout.timeout(5) { sleep 0.05 until File.exist?(pidfile) && !File.read(pidfile).strip.empty? }
-      child = File.read(pidfile).strip.to_i
+      Timeout.timeout(5) { sleep(0.05) until File.exist?(pidfile) && !File.read(pidfile).strip.empty? }
+      child = Integer(File.read(pidfile).strip, 10)
       Process.kill(0, child)
       Process.kill('TERM', parent)
       begin
@@ -366,7 +377,7 @@ class TestQbash < Minitest::Test
       rescue StandardError
         Process.kill('KILL', parent)
       end
-      sleep 0.1
+      sleep(0.1)
       alive =
         begin
           Process.kill(0, child)
@@ -387,8 +398,8 @@ class TestQbash < Minitest::Test
       @buf
     end
 
-    def print(ln)
-      @buf += ln
+    def print(line)
+      @buf += line
     end
   end
 end
