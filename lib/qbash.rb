@@ -8,6 +8,7 @@ require 'logger'
 require 'loog'
 require 'open3'
 require 'tago'
+require 'time'
 
 # Execute one bash command.
 #
