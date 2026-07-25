@@ -81,7 +81,7 @@ GEM
       minitest (>= 5.0, < 7)
       ruby-progressbar
     multi_test (1.1.0)
-    net-ping (2.0.8)
+    net-ping (2.0.9)
     nokogiri (1.19.3)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
