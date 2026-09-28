@@ -53,7 +53,7 @@ GEM
       loog (~> 0.6)
       tago (~> 0.1)
     ellipsized (0.3.0)
-    erb (6.0.4)
+    erb (6.0.7)
     ffi (1.17.4-aarch64-linux-gnu)
     ffi (1.17.4-arm-linux-gnu)
     ffi (1.17.4-arm64-darwin)
@@ -108,11 +108,11 @@ GEM
     rake (13.4.2)
     random-port (0.8.2)
       tago (~> 0.0)
-    rbs (4.0.3)
+    rbs (4.2.0)
       logger
       prism (>= 1.6.0)
       tsort
-    rdoc (8.0.0)
+    rdoc (8.1.0)
       erb
       prism (>= 1.6.0)
       rbs (>= 4.0.0)
