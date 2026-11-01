@@ -86,10 +86,10 @@ GEM
       minitest (>= 5.0, < 7)
       ruby-progressbar
     multi_test (2.0.0)
-    net-ping (2.2.0)
-    net-ping (2.2.0-universal-linux)
+    net-ping (3.0.0)
+    net-ping (3.0.0-universal-linux)
       cap2 (>= 0.2.2)
-    net-ping (2.2.0-universal-mingw-ucrt)
+    net-ping (3.0.0-universal-mingw-ucrt)
       win32-security (>= 0.2.0)
       win32ole (>= 1.8.8)
     nokogiri (1.19.3)
@@ -202,7 +202,7 @@ DEPENDENCIES
   cucumber (~> 12.0)
   minitest (~> 6.0)
   minitest-reporters (~> 1.7)
-  net-ping (~> 2.0)
+  net-ping (~> 3.0)
   qbash!
   rake (~> 13.2)
   random-port (~> 0.0)
