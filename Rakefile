@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'rake'
-require 'rake/clean'
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
+require 'rake'
+require 'rake/clean'
 require 'rubygems'
 
 def name
