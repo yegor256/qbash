@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'logger'
-require 'loog'
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
+require 'logger'
+require 'loog'
 require 'minitest/autorun'
 require 'securerandom'
 require 'shellwords'
@@ -85,7 +85,7 @@ class TestQbash < Minitest::Test
       original.call(*args) do |sin, sout, serr, ctrl|
         fake = Object.new
         fake.define_singleton_method(:pid) { ctrl.pid }
-        fake.define_singleton_method(:value) { nil }
+        def fake.value; end
         block.call(sin, sout, serr, fake)
       end
     end
