@@ -149,6 +149,7 @@ module Kernel
       end
     buf = +''
     e = 1
+    stopped = false
     start = Time.now
     popen =
       if raw
@@ -192,6 +193,7 @@ module Kernel
           loop do
             Process.kill(0, pid)
             Process.kill('TERM', pid)
+            stopped = true
             printer[stderr, "Tried to stop ##{pid} with SIGTERM (attempt no.#{attempt}, #{since.ago}): #{cmd}"]
             sleep(0.1)
             attempt += 1
@@ -225,7 +227,7 @@ module Kernel
         )
       end
       e = status.exitstatus || (status.termsig ? 128 + status.termsig : nil)
-      if !accept.nil? && !accept.include?(e)
+      if !stopped && !accept.nil? && !accept.include?(e)
         raise(
           StandardError,
           "The command '#{cmd}' failed (#{

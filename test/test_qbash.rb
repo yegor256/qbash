@@ -143,6 +143,10 @@ class TestQbash < Minitest::Test
     end.join
   end
 
+  def test_block_form_accepts_its_own_termination
+    qbash('sleep 9999') { |pid| pid }
+  end
+
   def test_truly_kills
     qbash('sleep 9876543', accept: nil) do
       sleep(0.1)
