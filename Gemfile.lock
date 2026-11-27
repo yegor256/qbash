@@ -188,7 +188,7 @@ GEM
       ffi
       ffi-win32-extensions
     win32ole (1.9.3)
-    yard (0.9.45)
+    yard (0.9.46)
 
 PLATFORMS
   aarch64-linux
